@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Voorjaarstrek — Vogeltrek Nederland</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a1628">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Voorjaarstrek">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+  :root {
+    --sky: #0a1628;
+    --sky-mid: #1a3a5c;
+    --horizon: #c4703a;
+    --gold: #e8a84c;
+    --amber: #f0c060;
+    --cream: #f5f0e8;
+    --sage: #7a9e6e;
+    --mist: rgba(255,255,255,0.07);
+    --glass: rgba(255,255,255,0.05);
+    --purple: #2d1b4e;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--sky);
+    color: var(--cream);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Dynamic sky background */
+  .sky-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -3;
+    transition: background 90s linear;
+  }
+
+  /* Star canvas */
+  #starsCanvas {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    transition: opacity 2s ease;
+  }
+
+  /* Sun and Moon */
+  .celestial {
+    position: fixed;
+    pointer-events: none;
+    z-index: -1;
+    transition: opacity 3s ease;
+  }
+
+  #sunEl {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff7d6 20%, #f0c060 60%, rgba(240,192,96,0) 100%);
+    box-shadow: 0 0 30px 12px rgba(240,192,96,0.5), 0 0 80px 30px rgba(232,168,76,0.2);
+    transform: translate(-50%, -50%);
+    transition: opacity 3s ease;
+  }
+
+  #moonEl {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 40%, #f5f0e8, #c8c0b0);
+    box-shadow: 0 0 20px 6px rgba(245,240,232,0.25);
+    transform: translate(-50%, -50%);
+    transition: opacity 3s ease;
+  }
+
+  /* Animated bird silhouettes */
+  .birds-container {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 60%;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .bird-flock {
+    position: absolute;
+    animation: flockFly linear infinite;
+  }
+  .bird-flock:nth-child(1) { top: 15%; animation-duration: 22s; animation-delay: 0s; }
+  .bird-flock:nth-child(2) { top: 30%; animation-duration: 28s; animation-delay: -8s; opacity: 0.6; }
+  .bird-flock:nth-child(3) { top: 8%; animation-duration: 35s; animation-delay: -15s; opacity: 0.4; }
+
+  @keyframes flockFly {
+    from { transform: translateX(-200px); }
+    to { transform: translateX(calc(100vw + 200px)); }
+  }
+
+  .bird {
+    display: inline-block;
+    width: 14px;
+    height: 4px;
+    border-top: 2px solid var(--cream);
+    border-radius: 50% 50% 0 0;
+    position: relative;
+    animation: wingFlap 0.4s ease-in-out infinite alternate;
+    margin: 0 3px;
+  }
+  .bird::before {
+    content: '';
+    position: absolute;
+    right: -14px;
+    top: 0;
+    width: 14px;
+    height: 4px;
+    border-top: 2px solid var(--cream);
+    border-radius: 50% 50% 0 0;
+    animation: wingFlap 0.4s ease-in-out infinite alternate-reverse;
+  }
+
+  @keyframes wingFlap {
+    from { transform: rotateX(0deg); }
+    to { transform: rotateX(40deg); }
+  }
+
+  /* Header */
+  header {
+    padding: 2rem 1.5rem 1rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .app-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    background: linear-gradient(135deg, var(--amber), var(--cream));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .app-subtitle {
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.8;
+    margin-top: 0.3rem;
+  }
+
+  .location-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 0.5rem auto;
+    font-size: 0.85rem;
+    color: var(--amber);
+    opacity: 0.9;
+    cursor: pointer;
+  }
+
+  .location-bar svg { width: 14px; height: 14px; }
+
+  /* Sky phase banner */
+  .sky-phase-banner {
+    margin: 0 1rem 0;
+    border-radius: 12px;
+    padding: 0.6rem 1rem;
+    font-size: 0.8rem;
+    text-align: center;
+    display: none;
+  }
+
+  .sky-phase-banner.night {
+    display: block;
+    background: rgba(45,27,78,0.6);
+    border: 1px solid rgba(160,120,220,0.3);
+    color: rgba(200,180,255,0.9);
+  }
+
+  .sky-phase-banner.golden {
+    display: block;
+    background: rgba(232,168,76,0.15);
+    border: 1px solid rgba(232,168,76,0.4);
+    color: var(--amber);
+    animation: goldenPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes goldenPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(232,168,76,0); }
+    50% { box-shadow: 0 0 16px 4px rgba(232,168,76,0.2); }
+  }
+
+  .sky-phase-banner.blue-hour {
+    display: block;
+    background: rgba(30,60,120,0.4);
+    border: 1px solid rgba(100,150,230,0.3);
+    color: rgba(150,190,255,0.9);
+  }
+
+  /* Main content */
+  main {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 1rem 6rem;
+  }
+
+  /* Trek Score Card */
+  .score-card {
+    background: linear-gradient(135deg, rgba(232,168,76,0.15), rgba(255,255,255,0.05));
+    border: 1px solid rgba(232,168,76,0.3);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .score-card.night-mode {
+    background: linear-gradient(135deg, rgba(100,70,160,0.2), rgba(255,255,255,0.05));
+    border-color: rgba(160,120,220,0.4);
+  }
+
+  .score-card.disabled {
+    opacity: 0.45;
+  }
+
+  .score-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% -20%, rgba(232,168,76,0.12), transparent 70%);
+  }
+
+  .score-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+  }
+
+  .score-label.night-label { color: rgba(180,150,255,1); opacity: 1; }
+
+  .score-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 5rem;
+    font-weight: 700;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--horizon), var(--amber), var(--cream));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .score-value.night-value {
+    background: linear-gradient(135deg, #7a50c0, #b090f0, var(--cream));
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .score-description {
+    font-size: 0.9rem;
+    color: var(--cream);
+    opacity: 0.85;
+    margin-top: 0.5rem;
+  }
+
+  .score-bar {
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    margin: 1rem 0 0;
+    overflow: hidden;
+  }
+
+  .score-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--horizon), var(--amber));
+    transition: width 1s ease;
+  }
+
+  .score-fill.night-fill {
+    background: linear-gradient(90deg, #4a2a8a, #9060d0);
+  }
+
+  /* Photo score card */
+  .photo-score-card {
+    background: linear-gradient(135deg, rgba(80,130,200,0.15), rgba(255,255,255,0.05));
+    border: 1px solid rgba(100,160,230,0.35);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .photo-score-card.golden-hour-active {
+    border-color: rgba(232,168,76,0.6);
+    background: linear-gradient(135deg, rgba(232,168,76,0.2), rgba(255,255,255,0.05));
+    animation: goldenPulse 3s ease-in-out infinite;
+  }
+
+  .photo-score-card.night-disabled {
+    opacity: 0.4;
+  }
+
+  .photo-score-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #7ab0f0;
+    opacity: 0.9;
+    margin-bottom: 0.5rem;
+  }
+
+  .photo-score-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 5rem;
+    font-weight: 700;
+    line-height: 1;
+    background: linear-gradient(135deg, #4a90d0, #90c8f0, var(--cream));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Light window timeline */
+  .timeline-wrap {
+    margin: 0.75rem 0;
+  }
+
+  .timeline-label-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.6rem;
+    opacity: 0.5;
+    margin-bottom: 0.3rem;
+  }
+
+  .timeline-bar {
+    position: relative;
+    height: 28px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.05);
+  }
+
+  .tl-segment {
+    position: absolute;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.55rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .tl-night   { background: rgba(10,20,50,0.8); color: rgba(150,180,255,0.7); }
+  .tl-predawn { background: rgba(50,20,80,0.7); color: rgba(180,150,255,0.8); }
+  .tl-blue    { background: rgba(30,60,140,0.7); color: rgba(150,200,255,0.9); }
+  .tl-golden  { background: linear-gradient(90deg, rgba(200,100,30,0.8), rgba(232,168,76,0.8)); color: rgba(255,240,200,1); }
+  .tl-day     { background: rgba(30,100,180,0.6); color: rgba(200,230,255,0.9); }
+
+  .tl-now {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: white;
+    box-shadow: 0 0 6px white;
+    border-radius: 1px;
+  }
+
+  .tl-now-dot {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 0 8px white;
+  }
+
+  /* Light windows list */
+  .light-windows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+  }
+
+  .lw-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--glass);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    transition: background 0.2s;
+  }
+
+  .lw-item.current {
+    border-color: rgba(232,168,76,0.5);
+    background: rgba(232,168,76,0.1);
+  }
+
+  .lw-item.upcoming { border-color: rgba(100,160,230,0.3); }
+  .lw-item.past { opacity: 0.4; }
+
+  .lw-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .lw-dot.golden { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+  .lw-dot.blue   { background: #7ab0f0; box-shadow: 0 0 8px #7ab0f0; }
+  .lw-dot.day    { background: #87ceeb; }
+  .lw-dot.night  { background: #6040a0; }
+
+  .lw-info { flex: 1; }
+  .lw-name { font-weight: 500; font-size: 0.85rem; }
+  .lw-time { font-size: 0.7rem; opacity: 0.6; margin-top: 0.1rem; }
+
+  .lw-countdown {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--amber);
+    white-space: nowrap;
+  }
+
+  .lw-countdown.current-badge {
+    background: rgba(232,168,76,0.2);
+    padding: 0.2rem 0.5rem;
+    border-radius: 20px;
+    color: var(--amber);
+  }
+
+  /* Section headers */
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--amber);
+    margin: 1.5rem 0 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(232,168,76,0.4), transparent);
+  }
+
+  /* Weather Grid */
+  .weather-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .weather-card {
+    background: var(--glass);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .weather-card.good { border-color: rgba(122,158,110,0.4); }
+  .weather-card.bad { border-color: rgba(200,80,60,0.3); }
+  .weather-card.neutral { border-color: rgba(255,255,255,0.12); }
+
+  .w-icon { font-size: 1.6rem; margin-bottom: 0.3rem; }
+  .w-label { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.6; }
+  .w-value { font-size: 1.3rem; font-weight: 500; margin: 0.1rem 0; }
+  .w-sub { font-size: 0.75rem; opacity: 0.7; }
+  .w-status {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+  .w-status.good { background: var(--sage); box-shadow: 0 0 6px var(--sage); }
+  .w-status.bad { background: #c8503c; }
+  .w-status.neutral { background: var(--amber); }
+
+  /* Wind compass */
+  .compass {
+    width: 60px;
+    height: 60px;
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 50%;
+    position: relative;
+    margin: 0.5rem auto 0;
+  }
+
+  .compass-arrow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2px;
+    height: 24px;
+    margin-left: -1px;
+    margin-top: -22px;
+    transform-origin: bottom center;
+    transition: transform 1s ease;
+  }
+
+  .compass-arrow .head {
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 14px solid var(--amber);
+    margin-left: -4px;
+  }
+
+  .compass-arrow .tail {
+    width: 2px;
+    height: 10px;
+    background: rgba(255,255,255,0.3);
+    margin: 0 auto;
+  }
+
+  .compass-labels {
+    position: absolute;
+    inset: -8px;
+    font-size: 0.55rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.5);
+  }
+  .compass-labels span { position: absolute; }
+  .compass-labels .n { top: 0; left: 50%; transform: translateX(-50%); }
+  .compass-labels .e { right: 0; top: 50%; transform: translateY(-50%); }
+  .compass-labels .s { bottom: 0; left: 50%; transform: translateX(-50%); }
+  .compass-labels .w { left: 0; top: 50%; transform: translateY(-50%); }
+
+  /* Moon phase display */
+  .moon-phase-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(45,27,78,0.4);
+    border: 1px solid rgba(160,120,220,0.25);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    margin: 0.75rem 0;
+    font-size: 0.82rem;
+  }
+
+  .moon-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .moon-info { flex: 1; }
+  .moon-name { font-weight: 500; color: rgba(200,180,255,1); }
+  .moon-sub { font-size: 0.7rem; opacity: 0.65; margin-top: 0.1rem; }
+
+  /* Night birds section */
+  .night-birds-section {
+    background: linear-gradient(135deg, rgba(30,15,60,0.6), rgba(10,20,50,0.5));
+    border: 1px solid rgba(140,100,220,0.35);
+    border-radius: 16px;
+    padding: 1rem 1.2rem;
+    margin: 0.75rem 0;
+  }
+
+  .night-birds-header {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-style: italic;
+    color: rgba(200,170,255,1);
+    margin-bottom: 0.25rem;
+  }
+
+  .night-birds-sub {
+    font-size: 0.72rem;
+    opacity: 0.55;
+    margin-bottom: 0.75rem;
+  }
+
+  .night-species-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .night-species-item:last-child { border-bottom: none; }
+
+  .ns-emoji { font-size: 1.3rem; flex-shrink: 0; }
+  .ns-info { flex: 1; }
+  .ns-name { font-size: 0.85rem; font-weight: 500; }
+  .ns-note { font-size: 0.68rem; opacity: 0.6; margin-top: 0.1rem; }
+
+  .ns-chance {
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.45rem;
+    border-radius: 20px;
+    flex-shrink: 0;
+    font-weight: 500;
+  }
+
+  .ns-chance.hoog   { background: rgba(122,158,110,0.25); color: #a8d49a; }
+  .ns-chance.middel { background: rgba(232,168,76,0.2); color: var(--amber); }
+  .ns-chance.laag   { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
+
+  .night-badge {
+    font-size: 0.6rem;
+    background: rgba(100,70,160,0.3);
+    color: rgba(180,150,255,0.9);
+    padding: 0.1rem 0.4rem;
+    border-radius: 10px;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+  }
+
+  /* Species cards */
+  .species-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .species-card {
+    background: var(--glass);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 1rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.2s, background 0.2s;
+  }
+
+  .species-card.expected {
+    border-color: rgba(122,158,110,0.4);
+    background: rgba(122,158,110,0.08);
+  }
+
+  .species-card.soon { border-color: rgba(232,168,76,0.3); }
+  .species-card.later { opacity: 0.6; }
+
+  .species-emoji { font-size: 1.8rem; flex-shrink: 0; }
+  .species-info { flex: 1; }
+  .species-name { font-weight: 500; font-size: 0.95rem; }
+  .species-origin { font-size: 0.72rem; opacity: 0.6; margin-top: 0.15rem; }
+  .species-timing { font-size: 0.72rem; color: var(--gold); margin-top: 0.2rem; }
+
+  .species-badge {
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border-radius: 20px;
+    flex-shrink: 0;
+    text-align: center;
+  }
+
+  .badge-expected { background: rgba(122,158,110,0.25); color: #a8d49a; }
+  .badge-soon     { background: rgba(232,168,76,0.2); color: var(--amber); }
+  .badge-later    { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
+
+  /* Conditions box */
+  .conditions-box {
+    background: var(--glass);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 1rem 1.2rem;
+    margin: 0.75rem 0;
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.8);
+  }
+
+  .conditions-box p { margin-bottom: 0.5rem; }
+  .conditions-box p:last-child { margin-bottom: 0; }
+  .highlight { color: var(--amber); }
+
+  /* Hotspots */
+  .hotspot-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .hotspot-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    background: var(--glass);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+  }
+
+  .hotspot-pin { font-size: 1.2rem; flex-shrink: 0; }
+  .hotspot-name { font-weight: 500; font-size: 0.9rem; }
+  .hotspot-desc { font-size: 0.72rem; opacity: 0.65; margin-top: 0.15rem; line-height: 1.4; }
+
+  /* Loading state */
+  .loading { text-align: center; padding: 2rem; opacity: 0.6; }
+  .loading-dots { display: inline-flex; gap: 6px; margin-top: 0.5rem; }
+  .loading-dots span {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--amber);
+    animation: bounce 1.2s ease-in-out infinite;
+  }
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+    40% { transform: translateY(-8px); opacity: 1; }
+  }
+
+  /* Error */
+  .error-box {
+    background: rgba(200,80,60,0.1);
+    border: 1px solid rgba(200,80,60,0.3);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.85rem;
+  }
+
+  /* Month selector */
+  .month-tabs {
+    display: flex;
+    gap: 0.4rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 0.2rem 0;
+    margin: 0.5rem 0;
+  }
+
+  .month-tabs::-webkit-scrollbar { display: none; }
+
+  .month-tab {
+    flex-shrink: 0;
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: transparent;
+    color: var(--cream);
+    font-size: 0.8rem;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0.7;
+  }
+
+  .month-tab.active {
+    background: rgba(232,168,76,0.2);
+    border-color: var(--amber);
+    color: var(--amber);
+    opacity: 1;
+  }
+
+  /* Trek tip */
+  .trek-tip {
+    background: linear-gradient(135deg, rgba(122,158,110,0.1), rgba(232,168,76,0.08));
+    border: 1px solid rgba(122,158,110,0.25);
+    border-radius: 16px;
+    padding: 1rem 1.2rem;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.85);
+    margin-top: 0.75rem;
+    position: relative;
+  }
+
+  .trek-tip::before {
+    content: '💡';
+    display: block;
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Foto tips */
+  .foto-tips-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+  }
+
+  .foto-tip-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    background: var(--glass);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.8);
+  }
+
+  .foto-tip-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.05rem; }
+
+  /* Bottom nav */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0; right: 0;
+    background: rgba(10,22,40,0.94);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    padding: 0.75rem 0 calc(0.75rem + env(safe-area-inset-bottom));
+  }
+
+  .nav-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--cream);
+    font-size: 0.6rem;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    padding: 0.2rem 0;
+  }
+
+  .nav-btn.active { opacity: 1; color: var(--amber); }
+  .nav-btn svg { width: 22px; height: 22px; }
+
+  /* Tab panels */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Refresh button */
+  .refresh-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(232,168,76,0.12);
+    border: 1px solid rgba(232,168,76,0.3);
+    border-radius: 20px;
+    color: var(--amber);
+    font-size: 0.75rem;
+    font-family: 'DM Sans', sans-serif;
+    padding: 0.4rem 0.9rem;
+    cursor: pointer;
+    margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+
+<!-- Dynamic sky background -->
+<div class="sky-bg" id="skyBg"></div>
+
+<!-- Stars canvas -->
+<canvas class="celestial" id="starsCanvas"></canvas>
+
+<!-- Sun -->
+<div class="celestial" id="sunEl" style="position:fixed; opacity:0;"></div>
+
+<!-- Moon -->
+<div class="celestial" id="moonEl" style="position:fixed; opacity:0;"></div>
+
+<!-- Animated birds -->
+<div class="birds-container">
+  <div class="bird-flock">
+    <span class="bird"></span><span class="bird"></span><span class="bird"></span>
+    <span class="bird"></span><span class="bird"></span>
+  </div>
+  <div class="bird-flock">
+    <span class="bird"></span><span class="bird"></span><span class="bird"></span>
+  </div>
+  <div class="bird-flock">
+    <span class="bird"></span><span class="bird"></span><span class="bird"></span>
+    <span class="bird"></span>
+  </div>
+</div>
+
+<header>
+  <div class="app-title">Voorjaarstrek</div>
+  <div class="app-subtitle">Vogeltrek Nederland</div>
+  <div class="location-bar" id="locationBar" onclick="getLocation()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+      <circle cx="12" cy="9" r="2.5"/>
+    </svg>
+    <span id="locationText">Locatie ophalen...</span>
+  </div>
+</header>
+
+<!-- Sky phase banner -->
+<div class="sky-phase-banner" id="skyPhaseBanner"></div>
+
+<main>
+  <!-- TAB: Weer -->
+  <div class="tab-panel active" id="tab-weer">
+    <div id="weatherContent">
+      <div class="loading">
+        <div>Weerdata laden...</div>
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Vogels -->
+  <div class="tab-panel" id="tab-vogels">
+    <div id="nightBirdsSection" style="display:none"></div>
+    <p class="section-title">🗓 Periode</p>
+    <div class="month-tabs">
+      <button class="month-tab" onclick="setMonth('mrt', event)">Maart</button>
+      <button class="month-tab active" onclick="setMonth('apr', event)">April</button>
+      <button class="month-tab" onclick="setMonth('mei', event)">Mei</button>
+    </div>
+    <div id="speciesContent"></div>
+  </div>
+
+  <!-- TAB: Foto -->
+  <div class="tab-panel" id="tab-foto">
+    <div id="fotoContent">
+      <div class="loading">
+        <div>Lichtdata berekenen...</div>
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Tips -->
+  <div class="tab-panel" id="tab-tips">
+    <p class="section-title">🧭 Beste omstandigheden</p>
+    <div class="conditions-box">
+      <p><span class="highlight">Wind:</span> ZO-wind (Beaufort 1–3) is ideaal — vogels vliegen met rugwind vanuit Afrika mee richting noorden. Bij oostenwind worden vogels naar de kust gedrukt (stuwing).</p>
+      <p><span class="highlight">Temperatuur:</span> Warm en stabiel &gt;12°C stimuleert trek. Voor roofvogels op thermiek: zonnig en licht windig.</p>
+      <p><span class="highlight">Licht:</span> Vroege ochtend (zonsopgang) is piekmoment voor zangvogels. Roofvogels trekken pas als de zon de lucht opwarmt (eind ochtend).</p>
+      <p><span class="highlight">Regen:</span> Regenachtig weer stopt de trek — vogels blijven zitten. Vlak ná regen kan explosieve trek plaatsvinden.</p>
+      <p><span class="highlight">Nachttrek:</span> ZO-wind, temperatuur &gt;10°C, en weinig regen zijn ideaal. Volle maan helpt vogels navigeren. Meeste zangvogels trekken tussen 23:00–03:00.</p>
+    </div>
+
+    <div class="trek-tip">
+      Vogels die 's nachts trekken landen vlak voor zonsopgang. Ga vroeg naar een duingebied of de kustlijn en wacht op de golf van nieuwkomers die uitrusten voor ze verder gaan.
+    </div>
+
+    <p class="section-title">📍 Hotspots</p>
+    <div class="hotspot-list">
+      <div class="hotspot-item">
+        <span class="hotspot-pin">🟡</span>
+        <div>
+          <div class="hotspot-name">Breskens (Zeeland)</div>
+          <div class="hotspot-desc">Beroemdste trektelpost van Nederland. Vogels volgen de kustlijn om de Westerschelde te vermijden — massale concentratie in april-mei.</div>
+        </div>
+      </div>
+      <div class="hotspot-item">
+        <span class="hotspot-pin">🟡</span>
+        <div>
+          <div class="hotspot-name">Texel & Waddeneilanden</div>
+          <div class="hotspot-desc">Ideaal voor zeevogels, steltlopers en zangvogels. Bij oostenwind worden vogels richting kust gedrukt.</div>
+        </div>
+      </div>
+      <div class="hotspot-item">
+        <span class="hotspot-pin">🟡</span>
+        <div>
+          <div class="hotspot-name">Maasvlakte (Rotterdam)</div>
+          <div class="hotspot-desc">Trekvogels die de kust volgen steken bij Hoek van Holland de Waterweg over en ploffen neer op de haventerreinen.</div>
+        </div>
+      </div>
+      <div class="hotspot-item">
+        <span class="hotspot-pin">🟡</span>
+        <div>
+          <div class="hotspot-name">Duinen (Noord-Holland)</div>
+          <div class="hotspot-desc">De kustlijn loopt SW-NE — precies de trekrichting van de meeste soorten. April-mei meest spectaculair.</div>
+        </div>
+      </div>
+      <div class="hotspot-item">
+        <span class="hotspot-pin">🟡</span>
+        <div>
+          <div class="hotspot-name">Zuid-Limburg</div>
+          <div class="hotspot-desc">Kraanvogeltrek! Bij oostenwind buigen ze richting Nederland af. Volgen de Maas en zijrivieren.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Bottom nav -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-weer" onclick="switchTab('weer')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+      <circle cx="12" cy="12" r="5"/>
+    </svg>
+    Weer
+  </button>
+  <button class="nav-btn" id="nav-vogels" onclick="switchTab('vogels')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <path d="M22 2L11 13"/>
+      <path d="M22 2L15 22l-4-9-9-4 20-7z"/>
+    </svg>
+    Vogels
+  </button>
+  <button class="nav-btn" id="nav-foto" onclick="switchTab('foto')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+      <circle cx="12" cy="13" r="4"/>
+    </svg>
+    Foto
+  </button>
+  <button class="nav-btn" id="nav-tips" onclick="switchTab('tips')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M12 16v-4M12 8h.01"/>
+    </svg>
+    Tips
+  </button>
+</nav>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+let lat = 52.3873;
+let lon = 4.6462;
+let locationName = 'Haarlem';
+let currentMonth = 'apr';
+let weatherData = null;
+let sunTimes = null; // { sunrise, sunset } in decimal local hours
+
+// ─── Sun calculation (USNO algorithm) ────────────────────────────────────────
+function getDayOfYear(date) {
+  const start = new Date(date.getFullYear(), 0, 0);
+  return Math.floor((date - start) / 86400000);
+}
+
+function calcSunEvent(doy, latDeg, lonDeg, isSunrise) {
+  const D = Math.PI / 180;
+  const lngHour = lonDeg / 15;
+  const t = isSunrise ? doy + (6 - lngHour) / 24 : doy + (18 - lngHour) / 24;
+  const M = 0.9856 * t - 3.289;
+  let L = M + 1.916 * Math.sin(M * D) + 0.020 * Math.sin(2 * M * D) + 282.634;
+  L = ((L % 360) + 360) % 360;
+  let RA = (1 / D) * Math.atan(0.91764 * Math.tan(L * D));
+  RA = ((RA % 360) + 360) % 360;
+  const Lq = Math.floor(L / 90) * 90;
+  const RAq = Math.floor(RA / 90) * 90;
+  RA = (RA + Lq - RAq) / 15;
+  const sinDec = 0.39782 * Math.sin(L * D);
+  const cosDec = Math.cos(Math.asin(sinDec));
+  const cosH = (Math.cos(90.833 * D) - sinDec * Math.sin(latDeg * D)) / (cosDec * Math.cos(latDeg * D));
+  if (cosH > 1 || cosH < -1) return null;
+  const H = isSunrise ? (360 - (1 / D) * Math.acos(cosH)) / 15 : ((1 / D) * Math.acos(cosH)) / 15;
+  const T = H + RA - 0.06571 * t - 6.622;
+  let UT = ((T - lngHour) % 24 + 24) % 24;
+  const tzOffset = -new Date().getTimezoneOffset() / 60;
+  return ((UT + tzOffset) % 24 + 24) % 24;
+}
+
+function updateSunTimes() {
+  const now = new Date();
+  const doy = getDayOfYear(now);
+  const sr = calcSunEvent(doy, lat, lon, true);
+  const ss = calcSunEvent(doy, lat, lon, false);
+  sunTimes = { sunrise: sr ?? 6.5, sunset: ss ?? 20.5 };
+}
+
+// ─── Sky phase ────────────────────────────────────────────────────────────────
+function getSkyPhase(hour) {
+  if (!sunTimes) return 'night';
+  const { sunrise, sunset } = sunTimes;
+  const blueDurAM = 0.5;    // 30 min blue hour before sunrise
+  const goldenDurAM = 1.2;  // 1h12 golden hour after sunrise
+  const goldenDurPM = 1.0;  // 1h golden hour before sunset
+  const blueDurPM = 0.5;    // 30 min blue hour after sunset
+  const duskDur = 1.0;      // 1h dusk after blue hour
+
+  if (hour < sunrise - 1.5) return 'night';
+  if (hour < sunrise - blueDurAM) return 'pre-dawn';
+  if (hour < sunrise) return 'blue-am';
+  if (hour < sunrise + goldenDurAM) return 'golden-am';
+  if (hour < sunset - goldenDurPM) return 'day';
+  if (hour < sunset) return 'golden-pm';
+  if (hour < sunset + blueDurPM) return 'blue-pm';
+  if (hour < sunset + blueDurPM + duskDur) return 'dusk';
+  return 'night';
+}
+
+function isNight(hour) {
+  const phase = getSkyPhase(hour);
+  return phase === 'night' || phase === 'pre-dawn';
+}
+
+function isGoldenHour(hour) {
+  const phase = getSkyPhase(hour);
+  return phase === 'golden-am' || phase === 'golden-pm';
+}
+
+function isBlueHour(hour) {
+  const phase = getSkyPhase(hour);
+  return phase === 'blue-am' || phase === 'blue-pm';
+}
+
+// ─── Sky background rendering ─────────────────────────────────────────────────
+const SKY_GRADIENTS = {
+  'night':    'linear-gradient(to bottom, #010508 0%, #040d1a 40%, #061220 70%, #0a1628 100%)',
+  'pre-dawn': 'linear-gradient(to bottom, #080318 0%, #1a0838 40%, #2d1b4e 65%, #1a2a5c 85%, #c4703a 100%)',
+  'blue-am':  'linear-gradient(to bottom, #0a0520 0%, #0e1a40 30%, #1a3060 55%, #2a5090 80%, #c4703a 100%)',
+  'golden-am':'linear-gradient(to bottom, #0a1628 0%, #1a3a5c 30%, #c4703a 65%, #e8a84c 85%, #f0c060 100%)',
+  'day':      'linear-gradient(to bottom, #1060aa 0%, #2a80cc 30%, #60aade 55%, #87ceeb 75%, #b0d8ee 100%)',
+  'golden-pm':'linear-gradient(to bottom, #1a3a5c 0%, #c4703a 40%, #e8a84c 70%, #f0c060 90%, #f8d880 100%)',
+  'blue-pm':  'linear-gradient(to bottom, #0e1a40 0%, #1a3060 30%, #2a5090 55%, #3a4070 80%, #c4703a 100%)',
+  'dusk':     'linear-gradient(to bottom, #080318 0%, #1a0838 25%, #2d1b4e 50%, #1a2a5c 75%, #0a1628 100%)',
+};
+
+function updateSkyBackground() {
+  const now = new Date();
+  const hour = now.getHours() + now.getMinutes() / 60;
+  const phase = getSkyPhase(hour);
+  document.getElementById('skyBg').style.background = SKY_GRADIENTS[phase] || SKY_GRADIENTS['day'];
+  updateCelestialBodies(hour, phase);
+  updateSkyPhaseBanner(hour, phase);
+  updateNightBirdsSection(hour);
+}
+
+// ─── Stars ────────────────────────────────────────────────────────────────────
+let starsDrawn = false;
+let starList = [];
+
+function initStars() {
+  const canvas = document.getElementById('starsCanvas');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  starList = [];
+  const count = Math.floor((canvas.width * canvas.height) / 2000);
+  for (let i = 0; i < count; i++) {
+    starList.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height * 0.7,
+      r: Math.random() * 1.2 + 0.3,
+      bright: Math.random()
+    });
+  }
+}
+
+function drawStars(opacity) {
+  const canvas = document.getElementById('starsCanvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (opacity <= 0) return;
+  starList.forEach(s => {
+    const a = opacity * (0.5 + s.bright * 0.5);
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,240,${a})`;
+    ctx.fill();
+  });
+}
+
+// ─── Celestial bodies ─────────────────────────────────────────────────────────
+function updateCelestialBodies(hour, phase) {
+  const sunEl = document.getElementById('sunEl');
+  const moonEl = document.getElementById('moonEl');
+
+  // Sun position: follows arc from sunrise to sunset
+  if (sunTimes && hour >= sunTimes.sunrise && hour <= sunTimes.sunset) {
+    const t = (hour - sunTimes.sunrise) / (sunTimes.sunset - sunTimes.sunrise);
+    const x = 5 + t * 90; // 5% to 95% of width
+    const y = 85 - 78 * 4 * t * (1 - t); // parabola: horizon at edges, top at noon
+    sunEl.style.left = x + 'vw';
+    sunEl.style.top = y + 'vh';
+    sunEl.style.opacity = phase === 'day' ? '1' : phase === 'golden-am' || phase === 'golden-pm' ? '0.9' : '0';
+  } else {
+    sunEl.style.opacity = '0';
+  }
+
+  // Moon: visible at night, positioned based on hour
+  const starsOpacity = ['night', 'pre-dawn'].includes(phase) ? 1
+    : phase === 'blue-am' || phase === 'dusk' ? 0.5
+    : phase === 'blue-pm' ? 0.3 : 0;
+  drawStars(starsOpacity);
+
+  if (starsOpacity > 0.4) {
+    // Simple moon position based on time (rises ~sunset, sets ~sunrise)
+    const nightT = hour < 12
+      ? (hour + 24 - sunTimes.sunset) / (24 - sunTimes.sunset + sunTimes.sunrise)
+      : (hour - sunTimes.sunset) / (24 - sunTimes.sunset + sunTimes.sunrise);
+    const mx = 10 + Math.min(nightT, 1) * 75;
+    const my = 15 + 20 * Math.sin(Math.min(nightT, 1) * Math.PI) * -1 + 20;
+    moonEl.style.left = mx + 'vw';
+    moonEl.style.top = my + 'vh';
+    moonEl.style.opacity = String(Math.min(1, starsOpacity * 1.3));
+  } else {
+    moonEl.style.opacity = '0';
+  }
+}
+
+// ─── Sky phase banner ─────────────────────────────────────────────────────────
+function updateSkyPhaseBanner(hour, phase) {
+  const banner = document.getElementById('skyPhaseBanner');
+  banner.className = 'sky-phase-banner';
+
+  if (phase === 'night' || phase === 'pre-dawn') {
+    banner.classList.add('night');
+    // Countdown to sunrise
+    if (sunTimes) {
+      let srHour = sunTimes.sunrise;
+      if (hour > srHour) srHour += 24; // already past today's sunrise
+      const minsLeft = Math.round((srHour - hour) * 60);
+      const h = Math.floor(minsLeft / 60);
+      const m = minsLeft % 60;
+      const countdown = h > 0 ? `${h}u ${m}m` : `${m} min`;
+      banner.innerHTML = `🌙 Nachttrek actief · Zonsopgang over <strong>${countdown}</strong>`;
+      if (phase === 'pre-dawn') {
+        banner.innerHTML = `🌌 Pre-dawn · Migranten landen straks — zonsopgang over <strong>${countdown}</strong>`;
+      }
+    }
+  } else if (isGoldenHour(hour)) {
+    banner.classList.add('golden');
+    banner.innerHTML = phase === 'golden-am'
+      ? `🌅 Gouden uur — ideaal licht voor vogelfotografie!`
+      : `🌇 Avondgoud — warm licht, vogels zoeken rustplaats`;
+  } else if (isBlueHour(hour)) {
+    banner.classList.add('blue-hour');
+    banner.innerHTML = phase === 'blue-am'
+      ? `🔵 Blue hour — nacht-trekkers landen elk moment`
+      : `🔵 Blue hour — zachte schemering, zangvogels zingen`;
+  }
+}
+
+// ─── Moon phase ───────────────────────────────────────────────────────────────
+function getMoonPhase(date) {
+  const known = new Date('2000-01-06T18:14:00Z');
+  const cycle = 29.530588;
+  const days = (date - known) / 86400000;
+  return ((days % cycle) + cycle) % cycle;
+}
+
+function moonPhaseName(phase) {
+  if (phase < 1.85)  return { name: 'Nieuwe maan', icon: '🌑', trek: 'Donker — vogels navigeren op sterren, goede nachttrek' };
+  if (phase < 7.38)  return { name: 'Wassende maansikkel', icon: '🌒', trek: 'Licht groeiend' };
+  if (phase < 9.22)  return { name: 'Eerste kwartier', icon: '🌓', trek: 'Half licht — redelijk voor nachttrek' };
+  if (phase < 14.77) return { name: 'Wassende maan', icon: '🌔', trek: 'Veel licht — vogels kunnen beter navigeren' };
+  if (phase < 16.61) return { name: 'Volle maan', icon: '🌕', trek: 'Volle maan — maximale navigatie, piek nachttrek!' };
+  if (phase < 22.15) return { name: 'Afnemende maan', icon: '🌖', trek: 'Licht neemt af' };
+  if (phase < 23.99) return { name: 'Laatste kwartier', icon: '🌗', trek: 'Half donker' };
+  if (phase < 29.53) return { name: 'Afnemende sikkel', icon: '🌘', trek: 'Bijna donker — nachttrek neemt toe' };
+  return { name: 'Nieuwe maan', icon: '🌑', trek: 'Donker — vogels navigeren op sterren' };
+}
+
+// ─── Species data (~40 soorten) ───────────────────────────────────────────────
+const SPECIES = {
+  mrt: [
+    { name: 'Kraanvogel', emoji: '🦢', origin: 'Zuid-Europa / N-Afrika', timing: 'Maart — piekt bij ZO-wind', status: 'expected', night: false },
+    { name: 'Tjiftjaf', emoji: '🐦', origin: 'Spanje / Portugal', timing: 'Al vanaf eind februari', status: 'expected', night: false },
+    { name: 'Zwartkop', emoji: '🐦', origin: 'Zuidwest-Europa', timing: 'Eind maart terug', status: 'expected', night: true },
+    { name: 'Zwarte Roodstaart', emoji: '🐦', origin: 'Mediterraan', timing: 'Maart–april', status: 'expected', night: false },
+    { name: 'Roodborst', emoji: '🐦', origin: 'ZW-Europa (overwinteraar)', timing: 'Trekt door in maart', status: 'expected', night: true },
+    { name: 'Veldleeuwerik', emoji: '🐦', origin: 'West-Europa', timing: 'Vroeg — al in februari', status: 'expected', night: false },
+    { name: 'Kramsvogel', emoji: '🐦', origin: 'Scandinavië', timing: 'Terugtrek in maart', status: 'expected', night: true },
+    { name: 'Koperwiek', emoji: '🐦', origin: 'Scandinavië / IJsland', timing: 'Terugtrek, roept \'s nachts', status: 'expected', night: true },
+    { name: 'Wulp', emoji: '🦤', origin: 'N-Afrika / W-Europa', timing: 'Vroege doortrekker', status: 'expected', night: false },
+    { name: 'Houtsnip', emoji: '🐦', origin: 'West-Europa', timing: 'Nacht-trekker langs duinen', status: 'expected', night: true },
+    { name: 'Watersnip', emoji: '🐦', origin: 'West-Afrika', timing: 'Moerassen, zelden gezien', status: 'expected', night: true },
+    { name: 'Huiszwaluw', emoji: '🕊️', origin: 'Sub-Sahara Afrika', timing: 'Verwacht in april', status: 'soon', night: false },
+    { name: 'Spotvogel', emoji: '🐦', origin: 'Tropisch Afrika', timing: 'Pas in mei', status: 'later', night: true },
+  ],
+  apr: [
+    { name: 'Boerenzwaluw', emoji: '🐦', origin: 'Zuidelijk Afrika (Kaap)', timing: 'Bulk april — vroeg voor de afstand', status: 'expected', night: false },
+    { name: 'Gele Kwikstaart', emoji: '🐤', origin: 'Sub-Sahara Afrika (W-Afrika)', timing: 'April — piekt bij ZO-wind', status: 'expected', night: false },
+    { name: 'Purperreiger', emoji: '🦩', origin: 'West-Afrika (Sahel)', timing: 'Half april aan', status: 'expected', night: false },
+    { name: 'Fitis', emoji: '🐦', origin: 'Sub-Sahara Afrika', timing: 'April–mei, nacht-trekker', status: 'expected', night: true },
+    { name: 'Boompieper', emoji: '🐦', origin: 'West-Afrika', timing: 'April langs de kust', status: 'expected', night: false },
+    { name: 'Graspieper', emoji: '🐦', origin: 'ZW-Europa / N-Afrika', timing: 'Hele april', status: 'expected', night: false },
+    { name: 'Grutto', emoji: '🦤', origin: 'West-Afrika (Mauritanië)', timing: 'April — Landje v. Geijsel!', status: 'expected', night: false },
+    { name: 'Kievit', emoji: '🐦', origin: 'West-Europa', timing: 'Vroeg door heel april', status: 'expected', night: false },
+    { name: 'Paapje', emoji: '🐦', origin: 'West-Afrika (Sahel)', timing: 'April–mei doortrekker', status: 'expected', night: true },
+    { name: 'Bonte Vliegenvanger', emoji: '🐦', origin: 'Tropisch Afrika', timing: 'Late april', status: 'soon', night: true },
+    { name: 'Rietgors', emoji: '🐦', origin: 'West-Europa', timing: 'April doortrek, \'s nachts', status: 'expected', night: true },
+    { name: 'Nachtegaal', emoji: '🎵', origin: 'Tropisch Afrika', timing: 'Late april, zingt direct bij aankomst', status: 'soon', night: true },
+    { name: 'Huiszwaluw', emoji: '🕊️', origin: 'Sub-Sahara Afrika', timing: 'Eind april aankomst', status: 'soon', night: false },
+    { name: 'Gierzwaluw', emoji: '🐦', origin: 'Afrika', timing: 'Verwacht in mei', status: 'later', night: false },
+    { name: 'Wielewaal', emoji: '🟡', origin: 'Tropisch Afrika', timing: 'Pas in mei', status: 'later', night: false },
+  ],
+  mei: [
+    { name: 'Gierzwaluw', emoji: '🐦', origin: 'Oost-Afrika / Madagaskar', timing: 'Begin mei aankomst', status: 'expected', night: false },
+    { name: 'Wielewaal', emoji: '🟡', origin: 'Tropisch Afrika (DRC)', timing: 'Begin mei — schitterend geel', status: 'expected', night: false },
+    { name: 'Spotvogel', emoji: '🐦', origin: 'Tropisch Afrika', timing: 'Mei, nacht-trekker', status: 'expected', night: true },
+    { name: 'Zomertortel', emoji: '🕊️', origin: 'West-Afrika (Sahel)', timing: 'Mei, sterk afgenomen', status: 'expected', night: false },
+    { name: 'Blauwborst', emoji: '🔵', origin: 'West-Afrika', timing: 'Mei langs de kust', status: 'expected', night: true },
+    { name: 'Kleine Karekiet', emoji: '🐦', origin: 'West-Afrika', timing: 'Mei, rietlanden', status: 'expected', night: true },
+    { name: 'Boomvalk', emoji: '🦅', origin: 'Sub-Sahara Afrika', timing: 'Mei, jaagt op zwaluwen', status: 'expected', night: false },
+    { name: 'Nachtegaal', emoji: '🎵', origin: 'Tropisch Afrika', timing: 'Zingt de hele meinacht', status: 'expected', night: true },
+    { name: 'Kwak', emoji: '🦅', origin: 'Sub-Sahara Afrika', timing: 'Mei in deltagebieden', status: 'soon', night: true },
+    { name: 'Noordse Stern', emoji: '⚡', origin: 'Antarctica (!)', timing: 'Mei — langste trekker ter wereld', status: 'soon', night: false },
+    { name: 'Kwartelkoning', emoji: '🐦', origin: 'Tropisch Afrika', timing: 'Late mei, zeldzaam (crex-crex)', status: 'soon', night: true },
+    { name: 'Bruine Kiekendief ♀', emoji: '🦅', origin: 'N-Afrika / Sahel', timing: 'Mei aankomst broedgebied', status: 'expected', night: false },
+  ],
+};
+
+// ─── Night species per month ───────────────────────────────────────────────────
+const NIGHT_SPECIES = {
+  mrt: [
+    { name: 'Houtsnip', emoji: '🐦', origin: 'West-Europa', chance: 'hoog', note: 'Volgt valleien en duinranden, stijgt bij zonsopgang op' },
+    { name: 'Kramsvogel', emoji: '🐦', origin: 'Scandinavië', chance: 'hoog', note: 'Vliegen in losse groepen, zachte chak-roep hoorbaar' },
+    { name: 'Koperwiek', emoji: '🐦', origin: 'Scandinavië / IJsland', chance: 'hoog', note: 'Terugtrek, herkenbaar dun siep-piep roepje' },
+    { name: 'Roodborst', emoji: '🐦', origin: 'West-Europa', chance: 'middel', note: 'Trekt overwegend \'s nachts, hoge siet-roep' },
+    { name: 'Watersnip', emoji: '🐦', origin: 'West-Afrika', chance: 'laag', note: 'Natte gebieden, scherp rend-rend-roep bij opvliegen' },
+  ],
+  apr: [
+    { name: 'Fitis', emoji: '🐦', origin: 'Sub-Sahara Afrika', chance: 'hoog', note: 'Hoofdnacht-trekker in april, luik-roep in het donker' },
+    { name: 'Nachtegaal', emoji: '🎵', origin: 'Tropisch Afrika', chance: 'hoog', note: 'Zingt bij aankomst direct — te horen vanuit je tuin!' },
+    { name: 'Roodborst', emoji: '🐦', origin: 'West-Europa', chance: 'middel', note: 'Hoge, dunne siet-roep, trekt verder naar N-Europa' },
+    { name: 'Paapje', emoji: '🐦', origin: 'West-Afrika (Sahel)', chance: 'middel', note: 'Open terrein, duinen en polders, kleine tring-roep' },
+    { name: 'Sprinkhaanzanger', emoji: '🐦', origin: 'West-Afrika', chance: 'laag', note: 'Moeilijk te zien, insectenachtig surrend geluid' },
+  ],
+  mei: [
+    { name: 'Spotvogel', emoji: '🐦', origin: 'Tropisch Afrika', chance: 'hoog', note: 'Mimickt andere soorten — je hoort ineens 5 soorten tegelijk' },
+    { name: 'Kleine Karekiet', emoji: '🐦', origin: 'West-Afrika', chance: 'hoog', note: 'Rietlanden, scherp tjak-tjak-tjak-roep \'s nachts' },
+    { name: 'Nachtegaal', emoji: '🎵', origin: 'Tropisch Afrika', chance: 'middel', note: 'Zingt ook overdag nu, maar nacht is spectaculairder' },
+    { name: 'Kwartelkoning', emoji: '🐦', origin: 'Tropisch Afrika', chance: 'laag', note: 'Crex-crex uit grasland — herkenbaar maar zeldzaam' },
+  ],
+};
+
+// ─── Wind helpers ─────────────────────────────────────────────────────────────
+function windDirText(deg) {
+  const dirs = ['N','NNO','NO','ONO','O','OZO','ZO','ZZO','Z','ZZW','ZW','WZW','W','WNW','NW','NNW'];
+  return dirs[Math.round(deg / 22.5) % 16];
+}
+
+function beaufort(ms) {
+  if (ms < 0.3) return 0;
+  if (ms < 1.6) return 1;
+  if (ms < 3.4) return 2;
+  if (ms < 5.5) return 3;
+  if (ms < 8)   return 4;
+  if (ms < 10.8) return 5;
+  if (ms < 13.9) return 6;
+  return 7;
+}
+
+// ─── Trek score ───────────────────────────────────────────────────────────────
+function calcTrekScore(w) {
+  const now = new Date();
+  const hour = now.getHours() + now.getMinutes() / 60;
+  const night = isNight(hour);
+
+  let score = 50;
+
+  // Wind direction: ZO (135°) ideal
+  const diff = Math.abs(((w.wind_direction_10m - 135 + 180 + 360) % 360) - 180);
+  if (diff < 45) score += 25;
+  else if (diff < 90) score += 10;
+  else if (diff > 135) score -= 15;
+
+  // Wind speed
+  const bf = beaufort(w.wind_speed_10m);
+  if (night) {
+    // At night: lighter winds are better (BF 0-2)
+    if (bf <= 2) score += 15;
+    else if (bf === 3) score += 5;
+    else if (bf >= 5) score -= 20;
+  } else {
+    if (bf >= 1 && bf <= 3) score += 15;
+    else if (bf === 0) score -= 5;
+    else if (bf >= 5) score -= 20;
+  }
+
+  // Temperature
+  if (w.temperature_2m > 15) score += 10;
+  else if (w.temperature_2m > 12) score += 5;
+  else if (w.temperature_2m > night ? 8 : 6) score += 2;
+  else score -= 10;
+
+  // Rain
+  if (w.precipitation > 0.5) score -= 20;
+  else if (w.precipitation > 0) score -= 8;
+
+  if (!night) {
+    // Cloud cover matters for daytime thermals
+    if (w.cloud_cover < 50) score += 5;
+  } else {
+    // Moon phase bonus for night
+    const phase = getMoonPhase(new Date());
+    const fullMoonDist = Math.abs(phase - 14.77);
+    if (fullMoonDist < 2) score += 10; // near full moon
+    // Clear sky at night helps with star navigation
+    if (w.cloud_cover < 30) score += 5;
+  }
+
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+function scoreLabelTrek(score, night) {
+  if (night) {
+    if (score >= 80) return { text: 'Uitstekend — piek nachttrek boven je', color: '#9060d0' };
+    if (score >= 65) return { text: 'Goed — veel nacht-trekkers onderweg', color: '#a880e0' };
+    if (score >= 50) return { text: 'Redelijk — trek is gaande', color: '#c4a060' };
+    if (score >= 35) return { text: 'Matig — beperkte nachttrek', color: '#c8a060' };
+    return { text: 'Slecht — vogels wachten op beter weer', color: '#c8503c' };
+  }
+  if (score >= 80) return { text: 'Uitstekend! Meteen naar buiten', color: '#7a9e6e' };
+  if (score >= 65) return { text: 'Goed — mooie trekvogels verwacht', color: '#a8d49a' };
+  if (score >= 50) return { text: 'Redelijk — kijken loont', color: '#e8a84c' };
+  if (score >= 35) return { text: 'Matig — kleine kans op trek', color: '#c8a060' };
+  return { text: 'Slecht — vogels wachten op beter', color: '#c8503c' };
+}
+
+// ─── Photo score ──────────────────────────────────────────────────────────────
+function calcFotoScore(w) {
+  if (!sunTimes) return 0;
+  const now = new Date();
+  const hour = now.getHours() + now.getMinutes() / 60;
+  const phase = getSkyPhase(hour);
+
+  const timeScores = {
+    'golden-am': 88, 'golden-pm': 85, 'blue-am': 72, 'blue-pm': 70,
+    'day': 52, 'pre-dawn': 45, 'dusk': 55, 'night': 8
+  };
+  let score = timeScores[phase] ?? 50;
+
+  // Cloud modifiers
+  if (w.cloud_cover > 85) score -= 18;        // flat, lifeless
+  else if (w.cloud_cover > 60) score += 6;    // diffuse, soft
+  else if (w.cloud_cover > 30) score += 4;    // partly cloudy, nice
+  else if (w.cloud_cover < 15 && phase === 'day') score -= 8; // harsh midday sun
+
+  // Rain
+  if (w.precipitation > 0.5) score -= 30;
+  else if (w.precipitation > 0) score -= 15;
+
+  // Wind (camera shake / bird positioning)
+  const bf = beaufort(w.wind_speed_10m);
+  if (bf >= 5) score -= 10;
+  else if (bf >= 4) score -= 4;
+  else if (bf >= 1 && bf <= 3) score += 4; // birds use updrafts, more action
+
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+function fotoScoreLabel(score, phase) {
+  if (phase === 'night') return { text: 'Nacht — daglicht fotografie niet mogelijk', color: '#6040a0' };
+  if (score >= 80) return { text: 'Gouden licht — nu naar buiten!', color: '#f0c060' };
+  if (score >= 65) return { text: 'Goed licht — mooie opnames mogelijk', color: '#a8d49a' };
+  if (score >= 50) return { text: 'Redelijk — bewolking geeft zacht licht', color: '#e8a84c' };
+  if (score >= 35) return { text: 'Matig — licht niet optimaal', color: '#c8a060' };
+  return { text: 'Slecht — regen of hard licht', color: '#c8503c' };
+}
+
+// ─── Light windows ────────────────────────────────────────────────────────────
+function formatHour(h) {
+  const hours = Math.floor(((h % 24) + 24) % 24);
+  const mins = Math.round(((h % 1) + 1) % 1 * 60);
+  return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+}
+
+function minsUntil(targetHour) {
+  const now = new Date();
+  const curH = now.getHours() + now.getMinutes() / 60;
+  let diff = targetHour - curH;
+  if (diff < 0) diff += 24;
+  return Math.round(diff * 60);
+}
+
+function buildLightWindows() {
+  if (!sunTimes) return [];
+  const sr = sunTimes.sunrise;
+  const ss = sunTimes.sunset;
+
+  return [
+    { key: 'night-pre',  name: 'Pre-dawn / Nachttrek',    start: sr - 1.5,  end: sr - 0.5, dotClass: 'night',  tl: 'tl-predawn' },
+    { key: 'blue-am',    name: 'Blue hour ochtend',        start: sr - 0.5,  end: sr,       dotClass: 'blue',   tl: 'tl-blue' },
+    { key: 'golden-am',  name: 'Golden hour ochtend',      start: sr,        end: sr + 1.2, dotClass: 'golden', tl: 'tl-golden' },
+    { key: 'day',        name: 'Dag',                      start: sr + 1.2,  end: ss - 1.0, dotClass: 'day',    tl: 'tl-day' },
+    { key: 'golden-pm',  name: 'Golden hour avond',        start: ss - 1.0,  end: ss,       dotClass: 'golden', tl: 'tl-golden' },
+    { key: 'blue-pm',    name: 'Blue hour avond',          start: ss,        end: ss + 0.5, dotClass: 'blue',   tl: 'tl-blue' },
+    { key: 'dusk',       name: 'Schemering',               start: ss + 0.5,  end: ss + 1.5, dotClass: 'night',  tl: 'tl-predawn' },
+  ];
+}
+
+function renderFotoTab() {
+  if (!sunTimes) { updateSunTimes(); }
+  const now = new Date();
+  const hour = now.getHours() + now.getMinutes() / 60;
+  const phase = getSkyPhase(hour);
+  const night = isNight(hour);
+  const w = weatherData;
+  const fotoScore = w ? calcFotoScore(w) : null;
+  const windows = buildLightWindows();
+  const fotoLabel = w ? fotoScoreLabel(fotoScore, phase) : null;
+  const golden = isGoldenHour(hour);
+
+  // Build timeline bar
+  let tlSegments = '';
+  windows.forEach(win => {
+    const startPct = ((win.start % 24) / 24) * 100;
+    const endPct = ((win.end % 24) / 24) * 100;
+    const width = endPct - startPct;
+    if (width > 0.5) {
+      const label = win.name.split(' ')[0];
+      tlSegments += `<div class="tl-segment ${win.tl}" style="left:${startPct.toFixed(1)}%;width:${width.toFixed(1)}%">${label}</div>`;
+    }
+  });
+  // Night segments (before and after)
+  tlSegments = `<div class="tl-segment tl-night" style="left:0;width:${((sunTimes.sunrise - 1.5) / 24 * 100).toFixed(1)}%">Nacht</div>` + tlSegments;
+  const afterDusk = (sunTimes.sunset + 1.5) / 24;
+  tlSegments += `<div class="tl-segment tl-night" style="left:${(afterDusk * 100).toFixed(1)}%;width:${((1 - afterDusk) * 100).toFixed(1)}%">Nacht</div>`;
+
+  const nowPct = (hour / 24 * 100).toFixed(1);
+  tlSegments += `<div class="tl-now" style="left:${nowPct}%"><div class="tl-now-dot"></div></div>`;
+
+  // Light windows list
+  let lwHtml = '';
+  windows.forEach(win => {
+    const inWindow = hour >= win.start && hour < win.end;
+    const past = hour >= win.end;
+    const upcoming = !inWindow && !past;
+    const statusClass = inWindow ? 'current' : past ? 'past' : 'upcoming';
+
+    let badge = '';
+    if (inWindow) {
+      const minsLeft = Math.round((win.end - hour) * 60);
+      badge = `<span class="lw-countdown current-badge">Nu · nog ${minsLeft} min</span>`;
+    } else if (upcoming) {
+      const mins = minsUntil(win.start);
+      badge = `<span class="lw-countdown">over ${mins < 60 ? mins + ' min' : Math.floor(mins/60) + 'u' + (mins%60 > 0 ? ' ' + mins%60 + 'm' : '')}</span>`;
+    }
+
+    lwHtml += `
+      <div class="lw-item ${statusClass}">
+        <div class="lw-dot ${win.dotClass}"></div>
+        <div class="lw-info">
+          <div class="lw-name">${win.name}</div>
+          <div class="lw-time">${formatHour(win.start)} – ${formatHour(win.end)}</div>
+        </div>
+        ${badge}
+      </div>`;
+  });
+
+  // Weather tips for photography
+  let fotoTipsHtml = '';
+  if (w) {
+    const tips = [];
+    const bf = beaufort(w.wind_speed_10m);
+    if (w.precipitation > 0) tips.push({ icon: '🌧️', text: 'Regen: vogels zitten stil en schuilen. Wacht op droge periode voor vliegende vogels.' });
+    if (bf >= 4) tips.push({ icon: '💨', text: `Wind Bf ${bf}: vogels vliegen actief maar camera trillt. Gebruik hogere sluitertijd.` });
+    else if (bf >= 2) tips.push({ icon: '💨', text: `Matige wind (Bf ${bf}): ideaal voor vliegende vogels en rooivogels op thermiek.` });
+    if (w.cloud_cover > 70) tips.push({ icon: '☁️', text: 'Bewolkt: zacht, gelijkmatig licht — perfect voor portretfoto\'s zonder harde schaduwen.' });
+    else if (w.cloud_cover < 20 && phase === 'day') tips.push({ icon: '☀️', text: 'Harde zon: probeer met de zon in de rug te staan. Vermijd het middaguur — golden hour is nu veel beter.' });
+    if (golden) tips.push({ icon: '🌅', text: 'Golden hour actief: warme kleurtemperatuur (~3200K). Ideaal voor dramatische achtergrondlichten en silhouetten.' });
+    if (isBlueHour(hour)) tips.push({ icon: '🔵', text: 'Blue hour: koele blauwe tint (6500K+). Schemervogels worden actief. ISO omhoog, statief aan.' });
+    if (tips.length === 0) tips.push({ icon: '📷', text: 'Redelijke omstandigheden. Golden hour (zonsopgang of -ondergang) geeft de mooiste vogelfoto\'s.' });
+
+    fotoTipsHtml = tips.map(t => `
+      <div class="foto-tip-item">
+        <span class="foto-tip-icon">${t.icon}</span>
+        <span>${t.text}</span>
+      </div>`).join('');
+  }
+
+  const moonPhase = getMoonPhase(new Date());
+  const moonInfo = moonPhaseName(moonPhase);
+
+  document.getElementById('fotoContent').innerHTML = `
+    ${fotoScore !== null ? `
+    <div class="photo-score-card ${golden ? 'golden-hour-active' : ''} ${night ? 'night-disabled' : ''}">
+      <div class="photo-score-label">${night ? '🌙 Foto Score (nacht)' : '📸 Foto Score'}</div>
+      <div class="photo-score-value">${night ? '—' : fotoScore}</div>
+      <div class="score-description" style="color:${fotoLabel.color}">${fotoLabel.text}</div>
+      ${!night ? `<div class="score-bar"><div class="score-fill" style="width:${fotoScore}%;background:linear-gradient(90deg,#2a60c0,#7ab0f0)"></div></div>` : ''}
+    </div>` : ''}
+
+    <p class="section-title">🕐 Lichtvenstertijden</p>
+    <div class="timeline-wrap">
+      <div class="timeline-label-row"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
+      <div class="timeline-bar">${tlSegments}</div>
+    </div>
+
+    <div class="light-windows">${lwHtml}</div>
+
+    <div class="moon-phase-row">
+      <span class="moon-icon">${moonInfo.icon}</span>
+      <div class="moon-info">
+        <div class="moon-name">${moonInfo.name}</div>
+        <div class="moon-sub">${moonInfo.trek}</div>
+      </div>
+    </div>
+
+    ${fotoTipsHtml ? `
+    <p class="section-title">📷 Weertips fotografie</p>
+    <div class="foto-tips-list">${fotoTipsHtml}</div>` : ''}
+  `;
+}
+
+// ─── Weather rendering ────────────────────────────────────────────────────────
+function renderWeather(w) {
+  const now = new Date();
+  const hour = now.getHours() + now.getMinutes() / 60;
+  const night = isNight(hour);
+  const score = calcTrekScore(w);
+  const label = scoreLabelTrek(score, night);
+  const bf = beaufort(w.wind_speed_10m);
+  const wDir = windDirText(w.wind_direction_10m);
+  const windGood = bf >= 1 && bf <= 4 && (w.wind_direction_10m > 90 && w.wind_direction_10m < 200);
+  const tempGood = w.temperature_2m > (night ? 8 : 12);
+  const rainGood = w.precipitation < 0.3;
+  const cloudGood = w.cloud_cover < 60;
+
+  const scoreName = night ? '🌙 Nachttrek Score' : '✦ Trek Score nu';
+
+  document.getElementById('weatherContent').innerHTML = `
+    <div class="score-card ${night ? 'night-mode' : ''}">
+      <div class="score-label ${night ? 'night-label' : ''}">${scoreName}</div>
+      <div class="score-value ${night ? 'night-value' : ''}">${score}</div>
+      <div class="score-description" style="color: ${label.color}">${label.text}</div>
+      <div class="score-bar">
+        <div class="score-fill ${night ? 'night-fill' : ''}" style="width: ${score}%"></div>
+      </div>
+    </div>
+
+    <div class="section-title">🌤 Weeromstandigheden</div>
+    <div class="weather-grid">
+      <div class="weather-card ${tempGood ? 'good' : 'neutral'}">
+        <div class="w-status ${tempGood ? 'good' : 'neutral'}"></div>
+        <div class="w-icon">🌡️</div>
+        <div class="w-label">Temperatuur</div>
+        <div class="w-value">${w.temperature_2m.toFixed(1)}°C</div>
+        <div class="w-sub">${tempGood ? 'Gunstig voor trek' : 'Nog wat fris'}</div>
+      </div>
+      <div class="weather-card ${windGood ? 'good' : 'neutral'}">
+        <div class="w-status ${windGood ? 'good' : 'neutral'}"></div>
+        <div class="w-icon">💨</div>
+        <div class="w-label">Wind</div>
+        <div class="w-value">${w.wind_speed_10m.toFixed(1)} m/s</div>
+        <div class="w-sub">Bf ${bf} · ${wDir}</div>
+        <div class="compass">
+          <div class="compass-labels">
+            <span class="n">N</span><span class="e">O</span>
+            <span class="s">Z</span><span class="w">W</span>
+          </div>
+          <div class="compass-arrow" style="transform: rotate(${w.wind_direction_10m}deg)">
+            <div class="head"></div>
+            <div class="tail"></div>
+          </div>
+        </div>
+      </div>
+      <div class="weather-card ${rainGood ? 'good' : 'bad'}">
+        <div class="w-status ${rainGood ? 'good' : 'bad'}"></div>
+        <div class="w-icon">🌧️</div>
+        <div class="w-label">Neerslag</div>
+        <div class="w-value">${w.precipitation.toFixed(1)} mm</div>
+        <div class="w-sub">${rainGood ? 'Droog — goed!' : 'Trek stopt bij regen'}</div>
+      </div>
+      <div class="weather-card ${cloudGood ? 'good' : 'neutral'}">
+        <div class="w-status ${cloudGood ? 'good' : 'neutral'}"></div>
+        <div class="w-icon">☁️</div>
+        <div class="w-label">Bewolking</div>
+        <div class="w-value">${w.cloud_cover}%</div>
+        <div class="w-sub">${cloudGood ? 'Zonnig — thermiek!' : 'Bewolkt'}</div>
+      </div>
+    </div>
+
+    ${night ? renderMoonRow() : ''}
+
+    <div class="trek-tip">
+      <strong>Nu het beste:</strong> ${getTrekAdvice(w, score, night)}
+    </div>
+
+    <div style="text-align:center; margin-top: 1rem;">
+      <button class="refresh-btn" onclick="fetchWeather()">🔄 Vernieuwen</button>
+    </div>
+  `;
+}
+
+function renderMoonRow() {
+  const moonPhase = getMoonPhase(new Date());
+  const moonInfo = moonPhaseName(moonPhase);
+  return `
+    <div class="moon-phase-row">
+      <span class="moon-icon">${moonInfo.icon}</span>
+      <div class="moon-info">
+        <div class="moon-name">${moonInfo.name}</div>
+        <div class="moon-sub">${moonInfo.trek}</div>
+      </div>
+    </div>`;
+}
+
+function getTrekAdvice(w, score, night) {
+  const wDir = windDirText(w.wind_direction_10m);
+  const bf = beaufort(w.wind_speed_10m);
+  if (night) {
+    if (score >= 70) return `${wDir}-wind, rustige omstandigheden — ideale nachttrek. Ga naar open veld of kustlijn en luister naar overvliegende vogels.`;
+    if (w.precipitation > 0.3) return `Regen houdt nachttrekkers aan de grond. Vlak ná de regen kan explosieve trek plaatsvinden — zet een alarm!`;
+    return `Matige nachttrek. Zet je raam open en luister naar de roepen van doortrekkende vogels.`;
+  }
+  if (score >= 75 && w.wind_direction_10m > 45 && w.wind_direction_10m < 200) {
+    return `${wDir}-wind duwt trekvogels richting de kust. Ideaal moment voor de duinen. Vroeg in de ochtend de beste kansen!`;
+  }
+  if (score >= 50) return `Redelijke omstandigheden. Zangvogels trekken vroeg in de ochtend. Roofvogels op thermiek zodra de zon kracht krijgt.`;
+  if (w.precipitation > 0.5) return `Regen stopt de trek. Maar vlak ná de regen kan explosieve trek plaatsvinden — houd het in de gaten!`;
+  return `Matige omstandigheden vandaag. Trek is beperkt. Morgen wellicht beter?`;
+}
+
+// ─── Night birds section ──────────────────────────────────────────────────────
+function updateNightBirdsSection(hour) {
+  const section = document.getElementById('nightBirdsSection');
+  if (!section) return;
+
+  if (!isNight(hour)) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  const nightList = NIGHT_SPECIES[currentMonth] || [];
+  const moonPhase = getMoonPhase(new Date());
+  const moonInfo = moonPhaseName(moonPhase);
+
+  const itemsHtml = nightList.map(s => `
+    <div class="night-species-item">
+      <span class="ns-emoji">${s.emoji}</span>
+      <div class="ns-info">
+        <div class="ns-name">${s.name}</div>
+        <div class="ns-note">${s.note}</div>
+      </div>
+      <span class="ns-chance ${s.chance}">${s.chance}</span>
+    </div>`).join('');
+
+  section.innerHTML = `
+    <div class="night-birds-section">
+      <div class="night-birds-header">🌙 Nu boven je in de lucht</div>
+      <div class="night-birds-sub">Nacht-trekkers die nu mogelijk overvliegen · ${moonInfo.icon} ${moonInfo.name}</div>
+      ${itemsHtml}
+    </div>`;
+}
+
+// ─── Species rendering ────────────────────────────────────────────────────────
+function renderSpecies() {
+  const list = SPECIES[currentMonth] || [];
+  const now = new Date();
+  const hour = now.getHours() + now.getMinutes() / 60;
+  const night = isNight(hour);
+
+  const html = `
+    <p class="section-title">🐦 ${currentMonth === 'mrt' ? 'Maart' : currentMonth === 'apr' ? 'April' : 'Mei'}-soorten</p>
+    <div class="species-list">
+      ${list.map(s => `
+        <div class="species-card ${s.status}">
+          <div class="species-emoji">${s.emoji}</div>
+          <div class="species-info">
+            <div class="species-name">${s.name}${s.night ? `<span class="night-badge">🌙 Nacht</span>` : ''}</div>
+            <div class="species-origin">📍 ${s.origin}</div>
+            <div class="species-timing">⏱ ${s.timing}</div>
+          </div>
+          <div class="species-badge badge-${s.status}">
+            ${s.status === 'expected' ? 'Nu' : s.status === 'soon' ? 'Binnenkort' : 'Later'}
+          </div>
+        </div>`).join('')}
+    </div>`;
+
+  document.getElementById('speciesContent').innerHTML = html;
+  updateNightBirdsSection(hour);
+}
+
+// ─── Weather fetch ────────────────────────────────────────────────────────────
+async function fetchWeather() {
+  document.getElementById('weatherContent').innerHTML = `
+    <div class="loading">
+      <div>Weerdata ophalen...</div>
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+    </div>`;
+
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,precipitation,cloud_cover,wind_speed_10m,wind_direction_10m&wind_speed_unit=ms&timezone=Europe%2FAmsterdam`;
+    const res = await fetch(url);
+    const data = await res.json();
+    weatherData = data.current;
+    renderWeather(weatherData);
+    renderFotoTab();
+  } catch (e) {
+    document.getElementById('weatherContent').innerHTML = `
+      <div class="error-box">
+        ⚠️ Kon weerdata niet ophalen.<br>
+        <small>Controleer je internetverbinding.</small><br><br>
+        <button class="refresh-btn" onclick="fetchWeather()" style="margin:0 auto;">Opnieuw proberen</button>
+      </div>`;
+  }
+}
+
+// ─── Geolocation ──────────────────────────────────────────────────────────────
+function getLocation() {
+  document.getElementById('locationText').textContent = 'Locatie bepalen...';
+  if (!navigator.geolocation) {
+    document.getElementById('locationText').textContent = 'Haarlem (standaard)';
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    async pos => {
+      lat = pos.coords.latitude;
+      lon = pos.coords.longitude;
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+        const data = await res.json();
+        locationName = data.address.city || data.address.town || data.address.village || 'Jouw locatie';
+        document.getElementById('locationText').textContent = locationName;
+      } catch {
+        document.getElementById('locationText').textContent = `${lat.toFixed(2)}°N ${lon.toFixed(2)}°E`;
+      }
+      updateSunTimes();
+      fetchWeather();
+      updateSkyBackground();
+    },
+    () => {
+      document.getElementById('locationText').textContent = 'Haarlem (standaard)';
+    }
+  );
+}
+
+// ─── Month selector ───────────────────────────────────────────────────────────
+function setMonth(m, event) {
+  currentMonth = m;
+  document.querySelectorAll('.month-tab').forEach(t => t.classList.remove('active'));
+  if (event && event.target) event.target.classList.add('active');
+  renderSpecies();
+}
+
+// ─── Tab switching ────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('nav-' + tab).classList.add('active');
+  if (tab === 'foto') renderFotoTab();
+}
+
+// ─── Initialisation ───────────────────────────────────────────────────────────
+function init() {
+  updateSunTimes();
+  initStars();
+  updateSkyBackground();
+
+  // Set correct month tab
+  const month = new Date().getMonth() + 1;
+  const tabs = document.querySelectorAll('.month-tab');
+  tabs.forEach(t => t.classList.remove('active'));
+  if (month === 3) { currentMonth = 'mrt'; tabs[0].classList.add('active'); }
+  else if (month === 5) { currentMonth = 'mei'; tabs[2].classList.add('active'); }
+  else { currentMonth = 'apr'; tabs[1].classList.add('active'); }
+
+  renderSpecies();
+  getLocation();
+  fetchWeather();
+
+  // Update sky every 60 seconds
+  setInterval(() => {
+    updateSkyBackground();
+    const hour = new Date().getHours() + new Date().getMinutes() / 60;
+    updateNightBirdsSection(hour);
+    if (document.getElementById('tab-foto').classList.contains('active')) renderFotoTab();
+    if (weatherData) renderWeather(weatherData);
+  }, 60000);
+
+  // Resize handler for stars
+  window.addEventListener('resize', () => {
+    initStars();
+    const hour = new Date().getHours() + new Date().getMinutes() / 60;
+    const phase = getSkyPhase(hour);
+    updateCelestialBodies(hour, phase);
+  });
+}
+
+init();
+
+// Register service worker for PWA / offline support
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
