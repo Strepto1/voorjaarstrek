@@ -721,6 +721,52 @@
     align-self: flex-start;
   }
 
+  /* Today birds section on landing page */
+  .today-group-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.7;
+    margin: 0.9rem 0 0.4rem;
+  }
+  .today-birds-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.3rem;
+  }
+  .today-bird-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: var(--glass);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 0.28rem 0.6rem 0.28rem 0.45rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+  .today-bird-chip.today-highlight {
+    border-color: rgba(232,168,76,0.35);
+    background: rgba(232,168,76,0.08);
+  }
+  .today-bird-name {
+    color: var(--text);
+    font-weight: 500;
+  }
+  .today-bird-count {
+    font-size: 0.65rem;
+    opacity: 0.5;
+    margin-left: 0.1rem;
+  }
+  .today-empty-note {
+    font-size: 0.78rem;
+    opacity: 0.45;
+    font-style: italic;
+    margin: 0.5rem 0 0.8rem;
+  }
+
   /* Conditions box */
   .conditions-box {
     background: var(--glass);
@@ -2788,6 +2834,69 @@ function renderFotoTab() {
 }
 
 // ─── Weather rendering ────────────────────────────────────────────────────────
+function renderTodayBirds(night) {
+  // Gather all species across all month-tabs
+  const allSpecies = [...(SPECIES.mrt || []), ...(SPECIES.apr || []), ...(SPECIES.mei || [])];
+  const now = new Date();
+  const todayDay   = now.getDate();
+  const todayMonth = now.getMonth();
+  const todayWeek  = getISOWeekNum(now);
+
+  // Day mode: only dagvliegers; night mode: only nachttrekkers
+  const pool = allSpecies.filter(s => s.nachttrekker === night);
+
+  // Species whose record peak fell on exactly this calendar day
+  const todayPeak = pool.filter(s =>
+    s.peakDate.getDate() === todayDay && s.peakDate.getMonth() === todayMonth
+  );
+  // Species whose record peak fell in the current ISO week (but not today)
+  const weekPeak = pool.filter(s =>
+    s.peakWeekNum === todayWeek &&
+    !(s.peakDate.getDate() === todayDay && s.peakDate.getMonth() === todayMonth)
+  );
+
+  const icon  = night ? '🌙' : '🐦';
+  const title = night ? 'Nacht op trek' : 'Nu op trek';
+  let html = `<div class="section-title">${icon} ${title}</div>`;
+
+  if (todayPeak.length === 0 && weekPeak.length === 0) {
+    html += `<p class="today-empty-note">Geen geregistreerde pieken op deze datum in de dataset.</p>`;
+    return html;
+  }
+
+  if (todayPeak.length > 0) {
+    const dayLabel = `${todayDay} ${SHORT_MONTH_NAMES[todayMonth]}`;
+    html += `<div class="today-group-label">📅 Dagrecord op ${dayLabel}</div>`;
+    html += `<div class="today-birds-row">`;
+    for (const s of todayPeak) {
+      const rar = rarityStyle(s.zeldzaamheid);
+      html += `<div class="today-bird-chip today-highlight" style="border-color:${rar.color}55">
+        <span>${s.emoji}</span>
+        <span class="today-bird-name">${s.name}</span>
+        <span class="today-bird-count">${s.maxCount.toLocaleString('nl-NL')}</span>
+      </div>`;
+    }
+    html += `</div>`;
+  }
+
+  if (weekPeak.length > 0) {
+    const weekLabel = weekPeak[0].peakWeekLabel;
+    html += `<div class="today-group-label">🗓 Piek deze week (${weekLabel})</div>`;
+    html += `<div class="today-birds-row">`;
+    for (const s of weekPeak) {
+      const rar = rarityStyle(s.zeldzaamheid);
+      html += `<div class="today-bird-chip" style="border-color:${rar.color}40">
+        <span>${s.emoji}</span>
+        <span class="today-bird-name">${s.name}</span>
+        <span class="today-bird-count">${s.maxCount.toLocaleString('nl-NL')}</span>
+      </div>`;
+    }
+    html += `</div>`;
+  }
+
+  return html;
+}
+
 function renderWeather(w) {
   const now = new Date();
   const hour = now.getHours() + now.getMinutes() / 60;
@@ -2860,6 +2969,8 @@ function renderWeather(w) {
     <div class="trek-tip">
       <strong>Nu het beste:</strong> ${getTrekAdvice(w, score, night)}
     </div>
+
+    ${renderTodayBirds(night)}
 
     <div style="text-align:center; margin-top: 1rem;">
       <button class="refresh-btn" onclick="fetchWeather()">🔄 Vernieuwen</button>
