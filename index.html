@@ -689,6 +689,38 @@
   .badge-soon     { background: rgba(232,168,76,0.2); color: var(--amber); }
   .badge-later    { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
 
+  /* Week group header */
+  .week-header {
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.75;
+    padding: 1.1rem 0.2rem 0.35rem;
+    border-bottom: 1px solid rgba(232,168,76,0.18);
+    margin-bottom: 0.5rem;
+  }
+
+  /* Extra species card fields */
+  .species-note {
+    font-size: 0.68rem;
+    opacity: 0.5;
+    margin-top: 0.12rem;
+  }
+
+  /* Rarity badge (replaces status badge) */
+  .species-badge-rar {
+    font-size: 0.58rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.22rem 0.45rem;
+    border-radius: 20px;
+    flex-shrink: 0;
+    font-weight: 500;
+    white-space: nowrap;
+    align-self: flex-start;
+  }
+
   /* Conditions box */
   .conditions-box {
     background: var(--glass);
@@ -1272,79 +1304,1218 @@ function moonPhaseName(phase) {
   return { name: 'Nieuwe maan', icon: '🌑', trek: 'Donker — vogels navigeren op sterren' };
 }
 
-// ─── Species data (~40 soorten) ───────────────────────────────────────────────
-const SPECIES = {
-  mrt: [
-    { name: 'Kraanvogel', emoji: '🦢', origin: 'Zuid-Europa / N-Afrika', timing: 'Maart — piekt bij ZO-wind', status: 'expected', night: false },
-    { name: 'Tjiftjaf', emoji: '🐦', origin: 'Spanje / Portugal', timing: 'Al vanaf eind februari', status: 'expected', night: false },
-    { name: 'Zwartkop', emoji: '🐦', origin: 'Zuidwest-Europa', timing: 'Eind maart terug', status: 'expected', night: true },
-    { name: 'Zwarte Roodstaart', emoji: '🐦', origin: 'Mediterraan', timing: 'Maart–april', status: 'expected', night: false },
-    { name: 'Roodborst', emoji: '🐦', origin: 'ZW-Europa (overwinteraar)', timing: 'Trekt door in maart', status: 'expected', night: true },
-    { name: 'Veldleeuwerik', emoji: '🐦', origin: 'West-Europa', timing: 'Vroeg — al in februari', status: 'expected', night: false },
-    { name: 'Kramsvogel', emoji: '🐦', origin: 'Scandinavië', timing: 'Terugtrek in maart', status: 'expected', night: true },
-    { name: 'Koperwiek', emoji: '🐦', origin: 'Scandinavië / IJsland', timing: 'Terugtrek, roept \'s nachts', status: 'expected', night: true },
-    { name: 'Wulp', emoji: '🦤', origin: 'N-Afrika / W-Europa', timing: 'Vroege doortrekker', status: 'expected', night: false },
-    { name: 'Houtsnip', emoji: '🐦', origin: 'West-Europa', timing: 'Nacht-trekker langs duinen', status: 'expected', night: true },
-    { name: 'Watersnip', emoji: '🐦', origin: 'West-Afrika', timing: 'Moerassen, zelden gezien', status: 'expected', night: true },
-    { name: 'Huiszwaluw', emoji: '🕊️', origin: 'Sub-Sahara Afrika', timing: 'Verwacht in april', status: 'soon', night: false },
-    { name: 'Spotvogel', emoji: '🐦', origin: 'Tropisch Afrika', timing: 'Pas in mei', status: 'later', night: true },
-  ],
-  apr: [
-    { name: 'Boerenzwaluw', emoji: '🐦', origin: 'Zuidelijk Afrika (Kaap)', timing: 'Bulk april — vroeg voor de afstand', status: 'expected', night: false },
-    { name: 'Gele Kwikstaart', emoji: '🐤', origin: 'Sub-Sahara Afrika (W-Afrika)', timing: 'April — piekt bij ZO-wind', status: 'expected', night: false },
-    { name: 'Purperreiger', emoji: '🦩', origin: 'West-Afrika (Sahel)', timing: 'Half april aan', status: 'expected', night: false },
-    { name: 'Fitis', emoji: '🐦', origin: 'Sub-Sahara Afrika', timing: 'April–mei, nacht-trekker', status: 'expected', night: true },
-    { name: 'Boompieper', emoji: '🐦', origin: 'West-Afrika', timing: 'April langs de kust', status: 'expected', night: false },
-    { name: 'Graspieper', emoji: '🐦', origin: 'ZW-Europa / N-Afrika', timing: 'Hele april', status: 'expected', night: false },
-    { name: 'Grutto', emoji: '🦤', origin: 'West-Afrika (Mauritanië)', timing: 'April — Landje v. Geijsel!', status: 'expected', night: false },
-    { name: 'Kievit', emoji: '🐦', origin: 'West-Europa', timing: 'Vroeg door heel april', status: 'expected', night: false },
-    { name: 'Paapje', emoji: '🐦', origin: 'West-Afrika (Sahel)', timing: 'April–mei doortrekker', status: 'expected', night: true },
-    { name: 'Bonte Vliegenvanger', emoji: '🐦', origin: 'Tropisch Afrika', timing: 'Late april', status: 'soon', night: true },
-    { name: 'Rietgors', emoji: '🐦', origin: 'West-Europa', timing: 'April doortrek, \'s nachts', status: 'expected', night: true },
-    { name: 'Nachtegaal', emoji: '🎵', origin: 'Tropisch Afrika', timing: 'Late april, zingt direct bij aankomst', status: 'soon', night: true },
-    { name: 'Huiszwaluw', emoji: '🕊️', origin: 'Sub-Sahara Afrika', timing: 'Eind april aankomst', status: 'soon', night: false },
-    { name: 'Gierzwaluw', emoji: '🐦', origin: 'Afrika', timing: 'Verwacht in mei', status: 'later', night: false },
-    { name: 'Wielewaal', emoji: '🟡', origin: 'Tropisch Afrika', timing: 'Pas in mei', status: 'later', night: false },
-  ],
-  mei: [
-    { name: 'Gierzwaluw', emoji: '🐦', origin: 'Oost-Afrika / Madagaskar', timing: 'Begin mei aankomst', status: 'expected', night: false },
-    { name: 'Wielewaal', emoji: '🟡', origin: 'Tropisch Afrika (DRC)', timing: 'Begin mei — schitterend geel', status: 'expected', night: false },
-    { name: 'Spotvogel', emoji: '🐦', origin: 'Tropisch Afrika', timing: 'Mei, nacht-trekker', status: 'expected', night: true },
-    { name: 'Zomertortel', emoji: '🕊️', origin: 'West-Afrika (Sahel)', timing: 'Mei, sterk afgenomen', status: 'expected', night: false },
-    { name: 'Blauwborst', emoji: '🔵', origin: 'West-Afrika', timing: 'Mei langs de kust', status: 'expected', night: true },
-    { name: 'Kleine Karekiet', emoji: '🐦', origin: 'West-Afrika', timing: 'Mei, rietlanden', status: 'expected', night: true },
-    { name: 'Boomvalk', emoji: '🦅', origin: 'Sub-Sahara Afrika', timing: 'Mei, jaagt op zwaluwen', status: 'expected', night: false },
-    { name: 'Nachtegaal', emoji: '🎵', origin: 'Tropisch Afrika', timing: 'Zingt de hele meinacht', status: 'expected', night: true },
-    { name: 'Kwak', emoji: '🦅', origin: 'Sub-Sahara Afrika', timing: 'Mei in deltagebieden', status: 'soon', night: true },
-    { name: 'Noordse Stern', emoji: '⚡', origin: 'Antarctica (!)', timing: 'Mei — langste trekker ter wereld', status: 'soon', night: false },
-    { name: 'Kwartelkoning', emoji: '🐦', origin: 'Tropisch Afrika', timing: 'Late mei, zeldzaam (crex-crex)', status: 'soon', night: true },
-    { name: 'Bruine Kiekendief ♀', emoji: '🦅', origin: 'N-Afrika / Sahel', timing: 'Mei aankomst broedgebied', status: 'expected', night: false },
-  ],
-};
+// ─── Raw migration data (bron: Nederlandse telposten 2025) ────────────────────
+const RAW_DATA = `#;Soort;Telpost;Totaal;Datum;Gemiddeld aantal;Zeldzaamheid om overdag waar te nemen;Nachttrekker;Toelichting trek
+139.;Aalscholver;Parnassia, Kennemerduinen;449;4 april 2025;592,2;Algemeen;Nee;Dagvlieger, standvogel
+139.;Aalscholver;Egmond aan Zee;460;12 juni 2025;592,2;Algemeen;Nee;Dagvlieger, standvogel
+139.;Aalscholver;Parnassia, Kennemerduinen;468;12 april 2025;592,2;Algemeen;Nee;Dagvlieger, standvogel
+139.;Aalscholver;Egmond aan Zee;484;11 januari 2025;592,2;Algemeen;Nee;Dagvlieger, standvogel
+139.;Aalscholver;Castricum aan Zee (zeetrek);1.100;2 januari 2025;592,2;Algemeen;Nee;Dagvlieger, standvogel
+129.;Alk;Egmond aan Zee;1;23 januari 2025;1,3;Zeer zeldzaam;Nee;Zee-/dagvlieger
+129.;Alk;Paal 19, Texel;1;8 januari 2025;1,3;Zeer zeldzaam;Nee;Zee-/dagvlieger
+129.;Alk;Paal 19, Texel;2;30 maart 2025;1,3;Zeer zeldzaam;Nee;Zee-/dagvlieger
+130.;Alk/Zeekoet;Egmond aan Zee;1;23 januari 2025;9,8;Zeldzaam;Nee;Zee-/dagvlieger
+130.;Alk/Zeekoet;Paal 19, Texel;2;10 januari 2025;9,8;Zeldzaam;Nee;Zee-/dagvlieger
+130.;Alk/Zeekoet;Paal 19, Texel;2;31 maart 2025;9,8;Zeldzaam;Nee;Zee-/dagvlieger
+130.;Alk/Zeekoet;Paal 19, Texel;9;8 januari 2025;9,8;Zeldzaam;Nee;Zee-/dagvlieger
+130.;Alk/Zeekoet;Paal 19, Texel;35;30 maart 2025;9,8;Zeldzaam;Nee;Zee-/dagvlieger
+271.;Appelvink;Vijfhoek Diemen;28;22 maart 2025;32,2;Vrij algemeen;Ja;Zangvogel, nachttrekker
+271.;Appelvink;Berkheide (Katwijk);28;13 mei 2025;32,2;Vrij algemeen;Ja;Zangvogel, nachttrekker
+271.;Appelvink;Vijfhoek Diemen;33;7 maart 2025;32,2;Vrij algemeen;Ja;Zangvogel, nachttrekker
+271.;Appelvink;Vijfhoek Diemen;36;25 maart 2025;32,2;Vrij algemeen;Ja;Zangvogel, nachttrekker
+271.;Appelvink;Berkheide (Katwijk);36;11 mei 2025;32,2;Vrij algemeen;Ja;Zangvogel, nachttrekker
+199.;Baardman;Waverhoek;2;3 maart 2025;4,4;Zeer zeldzaam;Nee;Standvogel, weinig trek
+199.;Baardman;Waverhoek;2;6 maart 2025;4,4;Zeer zeldzaam;Nee;Standvogel, weinig trek
+199.;Baardman;Waverhoek;3;5 januari 2025;4,4;Zeer zeldzaam;Nee;Standvogel, weinig trek
+199.;Baardman;Waverhoek;6;26 februari 2025;4,4;Zeer zeldzaam;Nee;Standvogel, weinig trek
+199.;Baardman;Waverhoek;9;7 april 2025;4,4;Zeer zeldzaam;Nee;Standvogel, weinig trek
+277.;Barmsijs;Berkheide (Katwijk);2;11 mei 2025;1,8;Zeer zeldzaam;Ja;Invasievogel, nachttrekker
+277.;Barmsijs;Berkheide (Katwijk);3;20 maart 2025;1,8;Zeer zeldzaam;Ja;Invasievogel, nachttrekker
+277.;Barmsijs;Heidestein (bij Zeist);1;9 februari 2025;1,8;Zeer zeldzaam;Ja;Invasievogel, nachttrekker
+277.;Barmsijs;Heidestein (bij Zeist);2;9 maart 2025;1,8;Zeer zeldzaam;Ja;Invasievogel, nachttrekker
+277.;Barmsijs;Waverhoek;1;3 februari 2025;1,8;Zeer zeldzaam;Ja;Invasievogel, nachttrekker
+236.;Beflijster;Parnassia, Kennemerduinen;13;8 april 2025;19,0;Zeldzaam;Ja;Lijster, nachttrekker
+236.;Beflijster;Berkheide (Katwijk);13;15 april 2025;19,0;Zeldzaam;Ja;Lijster, nachttrekker
+236.;Beflijster;Berkheide (Katwijk);14;6 april 2025;19,0;Zeldzaam;Ja;Lijster, nachttrekker
+236.;Beflijster;Maashorst - Hofmans Plassen;25;6 april 2025;19,0;Zeldzaam;Ja;Lijster, nachttrekker
+236.;Beflijster;Berkheide (Katwijk);30;12 april 2025;19,0;Zeldzaam;Ja;Lijster, nachttrekker
+23.;Bergeend;Egmond aan Zee;58;19 maart 2025;90,6;Vrij algemeen;Nee;Dagvlieger
+23.;Bergeend;Castricum aan Zee (zeetrek);59;19 maart 2025;90,6;Vrij algemeen;Nee;Dagvlieger
+23.;Bergeend;Bloemendaal aan Zee;69;19 mei 2025;90,6;Vrij algemeen;Nee;Dagvlieger
+23.;Bergeend;IJmuiden aan Zee;95;22 april 2025;90,6;Vrij algemeen;Nee;Dagvlieger
+23.;Bergeend;Castricum aan Zee (zeetrek);172;21 mei 2025;90,6;Vrij algemeen;Nee;Dagvlieger
+172.;Bijeneter;Berkheide (Katwijk);1;27 april 2025;4,4;Zeer zeldzaam;Nee;Dagvlieger, roepend
+172.;Bijeneter;Berkheide (Katwijk);4;11 mei 2025;4,4;Zeer zeldzaam;Nee;Dagvlieger, roepend
+172.;Bijeneter;Berkheide (Katwijk);7;20 mei 2025;4,4;Zeer zeldzaam;Nee;Dagvlieger, roepend
+172.;Bijeneter;Berkheide (Katwijk);9;19 mei 2025;4,4;Zeer zeldzaam;Nee;Dagvlieger, roepend
+172.;Bijeneter;IJmuiden aan Zee;1;29 april 2025;4,4;Zeer zeldzaam;Nee;Dagvlieger, roepend
+241.;Blauwborst;Berkheide (Katwijk);4;27 maart 2025;3,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+241.;Blauwborst;Waverhoek;2;19 maart 2025;3,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+241.;Blauwborst;Waverhoek;3;2 april 2025;3,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+241.;Blauwborst;Waverhoek;4;22 maart 2025;3,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+241.;Blauwborst;Waverhoek;4;7 april 2025;3,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+156.;Blauwe Kiekendief;Dordtse Biesbosch;2;21 februari 2025;3,2;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+156.;Blauwe Kiekendief;Dordtse Biesbosch;6;5 april 2025;3,2;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+156.;Blauwe Kiekendief;Heidestein (bij Zeist);2;23 februari 2025;3,2;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+156.;Blauwe Kiekendief;Landje van Geijsel;3;23 februari 2025;3,2;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+156.;Blauwe Kiekendief;Maashorst - Hofmans Plassen;3;13 april 2025;3,2;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+147.;Blauwe Reiger;Bloemendaal aan Zee;38;3 april 2025;63,4;Vrij algemeen;Nee;Dag- en nachtvlieger
+147.;Blauwe Reiger;Waverhoek;38;4 april 2025;63,4;Vrij algemeen;Nee;Dag- en nachtvlieger
+147.;Blauwe Reiger;Berkheide (Katwijk);40;19 maart 2025;63,4;Vrij algemeen;Nee;Dag- en nachtvlieger
+147.;Blauwe Reiger;Parnassia, Kennemerduinen;68;12 mei 2025;63,4;Vrij algemeen;Nee;Dag- en nachtvlieger
+147.;Blauwe Reiger;Berkheide (Katwijk);133;4 april 2025;63,4;Vrij algemeen;Nee;Dag- en nachtvlieger
+159.;Blauwe/Grauwe/Steppekiekendief;Heidestein (bij Zeist);1;11 mei 2025;1,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+159.;Blauwe/Grauwe/Steppekiekendief;Heidestein (bij Zeist);1;13 mei 2025;1,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+159.;Blauwe/Grauwe/Steppekiekendief;Parnassia, Kennemerduinen;1;11 mei 2025;1,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+204.;Boerenzwaluw;Maashorst - Hofmans Plassen;234;27 april 2025;280,6;Algemeen;Nee;Dagvlieger
+204.;Boerenzwaluw;Parnassia, Kennemerduinen;253;12 mei 2025;280,6;Algemeen;Nee;Dagvlieger
+204.;Boerenzwaluw;Parnassia, Kennemerduinen;275;27 april 2025;280,6;Algemeen;Nee;Dagvlieger
+204.;Boerenzwaluw;Parnassia, Kennemerduinen;311;11 mei 2025;280,6;Algemeen;Nee;Dagvlieger
+204.;Boerenzwaluw;Berkheide (Katwijk);330;27 april 2025;280,6;Algemeen;Nee;Dagvlieger
+83.;Bokje;IJmeerdijk, Almere;1;15 februari 2025;1,0;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+83.;Bokje;IJmeerdijk, Almere;1;20 maart 2025;1,0;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+74.;Bontbekplevier;IJmuiden aan Zee;161;12 mei 2025;215,8;Algemeen;Ja;Steltloper, nachttrekker
+74.;Bontbekplevier;Castricum aan Zee (zeetrek);191;11 mei 2025;215,8;Algemeen;Ja;Steltloper, nachttrekker
+74.;Bontbekplevier;Parnassia, Kennemerduinen;208;11 mei 2025;215,8;Algemeen;Ja;Steltloper, nachttrekker
+74.;Bontbekplevier;Bloemendaal aan Zee;217;13 mei 2025;215,8;Algemeen;Ja;Steltloper, nachttrekker
+74.;Bontbekplevier;IJmuiden aan Zee;302;11 mei 2025;215,8;Algemeen;Ja;Steltloper, nachttrekker
+192.;Bonte Kraai;IJmeerdijk, Almere;1;22 maart 2025;1,0;Zeer zeldzaam;Nee;Dagvlieger
+101.;Bonte Strandloper;Bloemendaal aan Zee;751;7 april 2025;1860,2;Algemeen;Ja;Steltloper, nachttrekker
+101.;Bonte Strandloper;Parnassia, Kennemerduinen;986;8 april 2025;1860,2;Algemeen;Ja;Steltloper, nachttrekker
+101.;Bonte Strandloper;Bloemendaal aan Zee;1.952;10 maart 2025;1860,2;Algemeen;Ja;Steltloper, nachttrekker
+101.;Bonte Strandloper;Parnassia, Kennemerduinen;2.760;4 april 2025;1860,2;Algemeen;Ja;Steltloper, nachttrekker
+101.;Bonte Strandloper;Castricum aan Zee (zeetrek);2.852;4 april 2025;1860,2;Algemeen;Ja;Steltloper, nachttrekker
+243.;Bonte Vliegenvanger;Dordtse Biesbosch;1;10 mei 2025;1,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+243.;Bonte Vliegenvanger;Heidestein (bij Zeist);2;25 april 2025;1,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+243.;Bonte Vliegenvanger;Heidestein (bij Zeist);3;12 april 2025;1,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+243.;Bonte Vliegenvanger;Maashorst - Hofmans Plassen;1;11 april 2025;1,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+243.;Bonte Vliegenvanger;Maashorst - Hofmans Plassen;1;23 april 2025;1,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+228.;Boomklever;Maashorst - Hofmans Plassen;1;11 april 2025;1,0;Zeer zeldzaam;Nee;Standvogel
+229.;Boomkruiper;Maashorst - Hofmans Plassen;1;28 maart 2025;1,0;Zeer zeldzaam;Nee;Standvogel
+229.;Boomkruiper;Waverhoek;1;6 maart 2025;1,0;Zeer zeldzaam;Nee;Standvogel
+200.;Boomleeuwerik;Heidestein (bij Zeist);10;9 maart 2025;11,4;Zeldzaam;Ja;Zangvogel, nachttrekker
+200.;Boomleeuwerik;Berkheide (Katwijk);10;21 maart 2025;11,4;Zeldzaam;Ja;Zangvogel, nachttrekker
+200.;Boomleeuwerik;Heidestein (bij Zeist);10;12 april 2025;11,4;Zeldzaam;Ja;Zangvogel, nachttrekker
+200.;Boomleeuwerik;Heidestein (bij Zeist);11;7 maart 2025;11,4;Zeldzaam;Ja;Zangvogel, nachttrekker
+200.;Boomleeuwerik;Maashorst - Hofmans Plassen;16;10 maart 2025;11,4;Zeldzaam;Ja;Zangvogel, nachttrekker
+263.;Boompieper;Berkheide (Katwijk);15;8 april 2025;24,2;Vrij algemeen;Ja;Zangvogel, nachttrekker
+263.;Boompieper;Heidestein (bij Zeist);16;13 april 2025;24,2;Vrij algemeen;Ja;Zangvogel, nachttrekker
+263.;Boompieper;Berkheide (Katwijk);22;4 april 2025;24,2;Vrij algemeen;Ja;Zangvogel, nachttrekker
+263.;Boompieper;Berkheide (Katwijk);26;15 april 2025;24,2;Vrij algemeen;Ja;Zangvogel, nachttrekker
+263.;Boompieper;Berkheide (Katwijk);42;12 april 2025;24,2;Vrij algemeen;Ja;Zangvogel, nachttrekker
+182.;Boomvalk;Heidestein (bij Zeist);4;4 mei 2025;4,4;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+182.;Boomvalk;Maashorst - Hofmans Plassen;3;28 april 2025;4,4;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+182.;Boomvalk;Maashorst - Hofmans Plassen;5;11 mei 2025;4,4;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+182.;Boomvalk;Maashorst - Hofmans Plassen;6;12 mei 2025;4,4;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+182.;Boomvalk;Meijendel (Wassenaar);4;9 mei 2025;4,4;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+217.;Bosrietzanger;Maashorst - Hofmans Plassen;1;13 mei 2025;1,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+217.;Bosrietzanger;Waverhoek;1;13 mei 2025;1,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+88.;Bosruiter;Landje van Geijsel;4;19 april 2025;14,2;Zeldzaam;Ja;Steltloper, nachttrekker
+88.;Bosruiter;Heidestein (bij Zeist);8;4 mei 2025;14,2;Zeldzaam;Ja;Steltloper, nachttrekker
+88.;Bosruiter;Landje van Geijsel;16;2 mei 2025;14,2;Zeldzaam;Ja;Steltloper, nachttrekker
+88.;Bosruiter;Landje van Geijsel;17;27 april 2025;14,2;Zeldzaam;Ja;Steltloper, nachttrekker
+88.;Bosruiter;Parnassia, Kennemerduinen;26;11 mei 2025;14,2;Zeldzaam;Ja;Steltloper, nachttrekker
+223.;Braamsluiper;Berkheide (Katwijk);2;23 april 2025;2,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+223.;Braamsluiper;Berkheide (Katwijk);2;26 april 2025;2,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+223.;Braamsluiper;Berkheide (Katwijk);2;1 mei 2025;2,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+223.;Braamsluiper;Berkheide (Katwijk);3;12 mei 2025;2,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+223.;Braamsluiper;IJmuiden aan Zee;2;10 mei 2025;2,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+6.;Brandgans;IJmeerdijk, Almere;1.812;1 mei 2025;2597,4;Algemeen;Nee;Dagvlieger
+6.;Brandgans;IJmeerdijk, Almere;1.816;26 januari 2025;2597,4;Algemeen;Nee;Dagvlieger
+6.;Brandgans;Waverhoek;2.157;14 april 2025;2597,4;Algemeen;Nee;Dagvlieger
+6.;Brandgans;IJmeerdijk, Almere;3.350;2 mei 2025;2597,4;Algemeen;Nee;Dagvlieger
+6.;Brandgans;IJmeerdijk, Almere;3.852;16 april 2025;2597,4;Algemeen;Nee;Dagvlieger
+7.;Brandgans x ?;Egmond aan Zee;1;12 juni 2025;1,0;Zeer zeldzaam;Nee;Dagvlieger
+44.;Brilduiker;IJmeerdijk, Almere;23;28 januari 2025;29,2;Vrij algemeen;Nee;Eend, dagvlieger
+44.;Brilduiker;Dordtse Biesbosch;26;21 februari 2025;29,2;Vrij algemeen;Nee;Eend, dagvlieger
+44.;Brilduiker;Dordtse Biesbosch;27;31 januari 2025;29,2;Vrij algemeen;Nee;Eend, dagvlieger
+44.;Brilduiker;Dordtse Biesbosch;33;4 februari 2025;29,2;Vrij algemeen;Nee;Eend, dagvlieger
+44.;Brilduiker;Dordtse Biesbosch;37;20 februari 2025;29,2;Vrij algemeen;Nee;Eend, dagvlieger
+155.;Bruine Kiekendief;Maashorst - Hofmans Plassen;13;5 april 2025;16,0;Zeldzaam;Nee;Roofvogel, dagvlieger
+155.;Bruine Kiekendief;Berkheide (Katwijk);13;6 april 2025;16,0;Zeldzaam;Nee;Roofvogel, dagvlieger
+155.;Bruine Kiekendief;Heidestein (bij Zeist);14;5 april 2025;16,0;Zeldzaam;Nee;Roofvogel, dagvlieger
+155.;Bruine Kiekendief;Heidestein (bij Zeist);18;9 april 2025;16,0;Zeldzaam;Nee;Roofvogel, dagvlieger
+155.;Bruine Kiekendief;Dordtse Biesbosch;22;5 april 2025;16,0;Zeldzaam;Nee;Roofvogel, dagvlieger
+198.;Buidelmees;Berkheide (Katwijk);1;9 mei 2025;1,0;Zeer zeldzaam;Nee;Standvogel/korte trek
+165.;Buizerd;Landje van Geijsel;15;6 april 2025;21,4;Vrij algemeen;Nee;Roofvogel, dagvlieger
+165.;Buizerd;Dordtse Biesbosch;20;3 april 2025;21,4;Vrij algemeen;Nee;Roofvogel, dagvlieger
+165.;Buizerd;Heidestein (bij Zeist);21;7 maart 2025;21,4;Vrij algemeen;Nee;Roofvogel, dagvlieger
+165.;Buizerd;Maashorst - Hofmans Plassen;21;23 maart 2025;21,4;Vrij algemeen;Nee;Roofvogel, dagvlieger
+165.;Buizerd;Maashorst - Hofmans Plassen;30;20 maart 2025;21,4;Vrij algemeen;Nee;Roofvogel, dagvlieger
+24.;Casarca;IJmeerdijk, Almere;3;12 juni 2025;7,4;Zeldzaam;Nee;Dagvlieger
+24.;Casarca;IJmeerdijk, Almere;4;11 juni 2025;7,4;Zeldzaam;Nee;Dagvlieger
+24.;Casarca;IJmeerdijk, Almere;6;30 mei 2025;7,4;Zeldzaam;Nee;Dagvlieger
+24.;Casarca;IJmeerdijk, Almere;8;14 juni 2025;7,4;Zeldzaam;Nee;Dagvlieger
+24.;Casarca;IJmuiden aan Zee;16;12 juni 2025;7,4;Zeldzaam;Nee;Dagvlieger
+208.;Cetti's Zanger;Diemerpark;2;22 maart 2025;2,0;Zeer zeldzaam;Nee;Standvogel
+208.;Cetti's Zanger;Diemerpark;2;23 maart 2025;2,0;Zeer zeldzaam;Nee;Standvogel
+208.;Cetti's Zanger;Diemerpark;2;26 maart 2025;2,0;Zeer zeldzaam;Nee;Standvogel
+208.;Cetti's Zanger;Diemerpark;2;2 april 2025;2,0;Zeer zeldzaam;Nee;Standvogel
+208.;Cetti's Zanger;Waverhoek;2;26 februari 2025;2,0;Zeer zeldzaam;Nee;Standvogel
+62.;Dodaars;Dordtse Biesbosch;12;31 januari 2025;18,8;Zeldzaam;Ja;Trekt 's nachts
+62.;Dodaars;Dordtse Biesbosch;14;14 februari 2025;18,8;Zeldzaam;Ja;Trekt 's nachts
+62.;Dodaars;Dordtse Biesbosch;14;20 februari 2025;18,8;Zeldzaam;Ja;Trekt 's nachts
+62.;Dodaars;Dordtse Biesbosch;20;8 februari 2025;18,8;Zeldzaam;Ja;Trekt 's nachts
+62.;Dodaars;Dordtse Biesbosch;34;15 februari 2025;18,8;Zeldzaam;Ja;Trekt 's nachts
+116.;Drieteenmeeuw;Paal 19, Texel;10;10 januari 2025;78,6;Vrij algemeen;Nee;Dagvlieger
+116.;Drieteenmeeuw;Castricum aan Zee (zeetrek);16;5 februari 2025;78,6;Vrij algemeen;Nee;Dagvlieger
+116.;Drieteenmeeuw;IJmuiden aan Zee;20;10 januari 2025;78,6;Vrij algemeen;Nee;Dagvlieger
+116.;Drieteenmeeuw;Paal 19, Texel;31;2 januari 2025;78,6;Vrij algemeen;Nee;Dagvlieger
+116.;Drieteenmeeuw;Paal 19, Texel;316;8 januari 2025;78,6;Vrij algemeen;Nee;Dagvlieger
+100.;Drieteenstrandloper;Bloemendaal aan Zee;308;13 mei 2025;345,4;Algemeen;Ja;Steltloper, nachttrekker
+100.;Drieteenstrandloper;Parnassia, Kennemerduinen;314;9 maart 2025;345,4;Algemeen;Ja;Steltloper, nachttrekker
+100.;Drieteenstrandloper;Bloemendaal aan Zee;358;8 mei 2025;345,4;Algemeen;Ja;Steltloper, nachttrekker
+100.;Drieteenstrandloper;Egmond aan Zee;367;2 mei 2025;345,4;Algemeen;Ja;Steltloper, nachttrekker
+100.;Drieteenstrandloper;Parnassia, Kennemerduinen;380;9 mei 2025;345,4;Algemeen;Ja;Steltloper, nachttrekker
+115.;Dwergmeeuw;Egmond aan Zee;1.100;22 april 2025;1743,2;Algemeen;Nee;Dagvlieger
+115.;Dwergmeeuw;Egmond aan Zee;1.191;3 april 2025;1743,2;Algemeen;Nee;Dagvlieger
+115.;Dwergmeeuw;Parnassia, Kennemerduinen;1.311;19 april 2025;1743,2;Algemeen;Nee;Dagvlieger
+115.;Dwergmeeuw;Egmond aan Zee;2.261;12 april 2025;1743,2;Algemeen;Nee;Dagvlieger
+115.;Dwergmeeuw;Castricum aan Zee (zeetrek);2.853;21 april 2025;1743,2;Algemeen;Nee;Dagvlieger
+105.;Dwergstern;Castricum aan Zee (zeetrek);59;21 april 2025;85,2;Vrij algemeen;Nee;Dagvlieger
+105.;Dwergstern;Castricum aan Zee (zeetrek);75;26 april 2025;85,2;Vrij algemeen;Nee;Dagvlieger
+105.;Dwergstern;Egmond aan Zee;89;26 april 2025;85,2;Vrij algemeen;Nee;Dagvlieger
+105.;Dwergstern;Bloemendaal aan Zee;93;26 april 2025;85,2;Vrij algemeen;Nee;Dagvlieger
+105.;Dwergstern;Bloemendaal aan Zee;110;5 mei 2025;85,2;Vrij algemeen;Nee;Dagvlieger
+40.;Eider;Paal 19, Texel;77;11 maart 2025;94,0;Vrij algemeen;Nee;Dagvlieger
+40.;Eider;Paal 19, Texel;81;5 februari 2025;94,0;Vrij algemeen;Nee;Dagvlieger
+40.;Eider;Castricum aan Zee (zeetrek);99;26 maart 2025;94,0;Vrij algemeen;Nee;Dagvlieger
+40.;Eider;Paal 19, Texel;105;14 februari 2025;94,0;Vrij algemeen;Nee;Dagvlieger
+40.;Eider;Paal 19, Texel;108;21 februari 2025;94,0;Vrij algemeen;Nee;Dagvlieger
+188.;Ekster;Berkheide (Katwijk);8;3 april 2025;13,8;Zeldzaam;Nee;Standvogel
+188.;Ekster;Berkheide (Katwijk);13;21 maart 2025;13,8;Zeldzaam;Nee;Standvogel
+188.;Ekster;Berkheide (Katwijk);15;2 maart 2025;13,8;Zeldzaam;Nee;Standvogel
+188.;Ekster;Berkheide (Katwijk);16;8 maart 2025;13,8;Zeldzaam;Nee;Standvogel
+188.;Ekster;Berkheide (Katwijk);17;20 maart 2025;13,8;Zeldzaam;Nee;Standvogel
+253.;Engelse Kwikstaart;Berkheide (Katwijk);1;6 april 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+253.;Engelse Kwikstaart;Berkheide (Katwijk);1;8 april 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+253.;Engelse Kwikstaart;Berkheide (Katwijk);1;15 april 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+253.;Engelse Kwikstaart;Berkheide (Katwijk);3;11 mei 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+253.;Engelse Kwikstaart;Parnassia, Kennemerduinen;1;23 april 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+67.;Europese Flamingo;Castricum aan Zee (zeetrek);3;21 mei 2025;3,0;Zeer zeldzaam;Nee;Dagvlieger
+280.;Europese Kanarie;Parnassia, Kennemerduinen;1;4 april 2025;1,0;Zeer zeldzaam;Nee;Dagvlieger
+280.;Europese Kanarie;Parnassia, Kennemerduinen;1;15 april 2025;1,0;Zeer zeldzaam;Nee;Dagvlieger
+211.;Fitis;Berkheide (Katwijk);2;14 april 2025;2,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+211.;Fitis;Berkheide (Katwijk);2;15 april 2025;2,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+211.;Fitis;Berkheide (Katwijk);3;7 april 2025;2,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+211.;Fitis;Berkheide (Katwijk);3;23 april 2025;2,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+211.;Fitis;Berkheide (Katwijk);3;8 mei 2025;2,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+210.;Fluiter;Heidestein (bij Zeist);1;3 mei 2025;1,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+210.;Fluiter;Heidestein (bij Zeist);1;7 mei 2025;1,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+210.;Fluiter;Heidestein (bij Zeist);2;2 mei 2025;1,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+210.;Fluiter;Meijendel (Wassenaar);1;19 mei 2025;1,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+64.;Fuut;Egmond aan Zee;61;12 januari 2025;94,6;Vrij algemeen;Ja;Trekt 's nachts
+64.;Fuut;Castricum aan Zee (zeetrek);70;11 januari 2025;94,6;Vrij algemeen;Ja;Trekt 's nachts
+64.;Fuut;Egmond aan Zee;72;11 januari 2025;94,6;Vrij algemeen;Ja;Trekt 's nachts
+64.;Fuut;Bloemendaal aan Zee;89;19 februari 2025;94,6;Vrij algemeen;Ja;Trekt 's nachts
+64.;Fuut;Castricum aan Zee (zeetrek);181;22 januari 2025;94,6;Vrij algemeen;Ja;Trekt 's nachts
+187.;Gaai;Berkheide (Katwijk);2;2 april 2025;2,2;Zeer zeldzaam;Nee;Dagvlieger
+187.;Gaai;Berkheide (Katwijk);2;4 april 2025;2,2;Zeer zeldzaam;Nee;Dagvlieger
+187.;Gaai;Heidestein (bij Zeist);3;7 maart 2025;2,2;Zeer zeldzaam;Nee;Dagvlieger
+187.;Gaai;Waverhoek;2;6 maart 2025;2,2;Zeer zeldzaam;Nee;Dagvlieger
+187.;Gaai;Waverhoek;2;1 april 2025;2,2;Zeer zeldzaam;Nee;Dagvlieger
+283.;Geelgors;Berkheide (Katwijk);1;20 maart 2025;1,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+283.;Geelgors;Berkheide (Katwijk);1;22 maart 2025;1,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+283.;Geelgors;Berkheide (Katwijk);1;26 april 2025;1,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+283.;Geelgors;IJmuiden aan Zee;1;8 maart 2025;1,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+283.;Geelgors;Parnassia, Kennemerduinen;1;15 april 2025;1,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+122.;Geelpootmeeuw;Paal 19, Texel;4;25 januari 2025;5,0;Zeldzaam;Nee;Dagvlieger
+122.;Geelpootmeeuw;Dordtse Biesbosch;4;21 maart 2025;5,0;Zeldzaam;Nee;Dagvlieger
+122.;Geelpootmeeuw;Dordtse Biesbosch;4;5 april 2025;5,0;Zeldzaam;Nee;Dagvlieger
+122.;Geelpootmeeuw;Dordtse Biesbosch;4;11 april 2025;5,0;Zeldzaam;Nee;Dagvlieger
+122.;Geelpootmeeuw;Dordtse Biesbosch;9;29 maart 2025;5,0;Zeldzaam;Nee;Dagvlieger
+245.;Gekraagde Roodstaart;Berkheide (Katwijk);3;12 april 2025;3,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+245.;Gekraagde Roodstaart;Berkheide (Katwijk);3;14 april 2025;3,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+245.;Gekraagde Roodstaart;Berkheide (Katwijk);3;16 april 2025;3,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+245.;Gekraagde Roodstaart;Heidestein (bij Zeist);3;8 april 2025;3,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+245.;Gekraagde Roodstaart;Heidestein (bij Zeist);3;12 april 2025;3,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+252.;Gele Kwikstaart;Maashorst - Hofmans Plassen;27;8 april 2025;37,0;Vrij algemeen;Ja;Dagvlieger maar roepend 's nachts
+252.;Gele Kwikstaart;Maashorst - Hofmans Plassen;31;30 april 2025;37,0;Vrij algemeen;Ja;Dagvlieger maar roepend 's nachts
+252.;Gele Kwikstaart;Heidestein (bij Zeist);37;11 mei 2025;37,0;Vrij algemeen;Ja;Dagvlieger maar roepend 's nachts
+252.;Gele Kwikstaart;Anna's Berg (Hilversum);43;10 mei 2025;37,0;Vrij algemeen;Ja;Dagvlieger maar roepend 's nachts
+252.;Gele Kwikstaart;Berkheide (Katwijk);47;8 april 2025;37,0;Vrij algemeen;Ja;Dagvlieger maar roepend 's nachts
+66.;Geoorde Fuut;IJmeerdijk, Almere;17;7 april 2025;22,8;Vrij algemeen;Ja;Trekt 's nachts
+66.;Geoorde Fuut;IJmeerdijk, Almere;19;6 maart 2025;22,8;Vrij algemeen;Ja;Trekt 's nachts
+66.;Geoorde Fuut;IJmeerdijk, Almere;25;7 maart 2025;22,8;Vrij algemeen;Ja;Trekt 's nachts
+66.;Geoorde Fuut;IJmeerdijk, Almere;25;9 maart 2025;22,8;Vrij algemeen;Ja;Trekt 's nachts
+66.;Geoorde Fuut;IJmeerdijk, Almere;28;4 april 2025;22,8;Vrij algemeen;Ja;Trekt 's nachts
+50.;Gierzwaluw;IJmeerdijk, Almere;4.175;6 juni 2025;6213,4;Algemeen;Nee;Dagvlieger
+50.;Gierzwaluw;IJmeerdijk, Almere;4.700;27 mei 2025;6213,4;Algemeen;Nee;Dagvlieger
+50.;Gierzwaluw;IJmeerdijk, Almere;5.289;8 juni 2025;6213,4;Algemeen;Nee;Dagvlieger
+50.;Gierzwaluw;IJmeerdijk, Almere;8.432;25 mei 2025;6213,4;Algemeen;Nee;Dagvlieger
+50.;Gierzwaluw;IJmeerdijk, Almere;8.471;28 mei 2025;6213,4;Algemeen;Nee;Dagvlieger
+226.;Goudhaan;Berkheide (Katwijk);2;27 maart 2025;2,8;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+226.;Goudhaan;Heidestein (bij Zeist);7;14 januari 2025;2,8;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+226.;Goudhaan;IJmuiden aan Zee;1;22 maart 2025;2,8;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+226.;Goudhaan;IJmuiden aan Zee;2;21 maart 2025;2,8;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+226.;Goudhaan;Vijfhoek Diemen;2;4 januari 2025;2,8;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+72.;Goudplevier;Heidestein (bij Zeist);328;7 maart 2025;704,0;Algemeen;Ja;Steltloper, nachttrekker
+72.;Goudplevier;Landje van Geijsel;474;7 maart 2025;704,0;Algemeen;Ja;Steltloper, nachttrekker
+72.;Goudplevier;Landje van Geijsel;535;2 maart 2025;704,0;Algemeen;Ja;Steltloper, nachttrekker
+72.;Goudplevier;Landje van Geijsel;655;23 februari 2025;704,0;Algemeen;Ja;Steltloper, nachttrekker
+72.;Goudplevier;Landje van Geijsel;1.528;21 februari 2025;704,0;Algemeen;Ja;Steltloper, nachttrekker
+272.;Goudvink;Diemerpark;2;13 april 2025;2,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+272.;Goudvink;Diemerpark;3;9 maart 2025;2,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+272.;Goudvink;Heidestein (bij Zeist);1;10 januari 2025;2,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+272.;Goudvink;Heidestein (bij Zeist);2;19 maart 2025;2,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+272.;Goudvink;Vijfhoek Diemen;3;9 februari 2025;2,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+224.;Grasmus;Berkheide (Katwijk);2;16 april 2025;3,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+224.;Grasmus;Berkheide (Katwijk);3;23 april 2025;3,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+224.;Grasmus;Berkheide (Katwijk);3;9 mei 2025;3,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+224.;Grasmus;Berkheide (Katwijk);6;1 mei 2025;3,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+224.;Grasmus;IJmuiden aan Zee;3;10 mei 2025;3,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+262.;Graspieper;Parnassia, Kennemerduinen;1.333;15 april 2025;1747,0;Algemeen;Ja;Zangvogel, nachttrekker
+262.;Graspieper;Heidestein (bij Zeist);1.438;8 april 2025;1747,0;Algemeen;Ja;Zangvogel, nachttrekker
+262.;Graspieper;Heidestein (bij Zeist);1.488;15 april 2025;1747,0;Algemeen;Ja;Zangvogel, nachttrekker
+262.;Graspieper;Heidestein (bij Zeist);2.032;9 april 2025;1747,0;Algemeen;Ja;Zangvogel, nachttrekker
+262.;Graspieper;Berkheide (Katwijk);2.444;15 april 2025;1747,0;Algemeen;Ja;Zangvogel, nachttrekker
+10.;Grauwe Gans;IJmeerdijk, Almere;519;10 mei 2025;746,6;Algemeen;Nee;Dagvlieger
+10.;Grauwe Gans;IJmeerdijk, Almere;642;19 mei 2025;746,6;Algemeen;Nee;Dagvlieger
+10.;Grauwe Gans;IJmeerdijk, Almere;658;9 mei 2025;746,6;Algemeen;Nee;Dagvlieger
+10.;Grauwe Gans;IJmeerdijk, Almere;939;12 mei 2025;746,6;Algemeen;Nee;Dagvlieger
+10.;Grauwe Gans;IJmeerdijk, Almere;975;11 mei 2025;746,6;Algemeen;Nee;Dagvlieger
+158.;Grauwe Kiekendief;Berkheide (Katwijk);1;10 mei 2025;1,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+158.;Grauwe Kiekendief;Heidestein (bij Zeist);1;13 mei 2025;1,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+158.;Grauwe Kiekendief;IJmuiden aan Zee;1;10 mei 2025;1,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+158.;Grauwe Kiekendief;Landje van Geijsel;1;2 mei 2025;1,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+158.;Grauwe Kiekendief;Maashorst - Hofmans Plassen;1;21 april 2025;1,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+238.;Grauwe Vliegenvanger;Berkheide (Katwijk);6;30 april 2025;9,2;Zeldzaam;Ja;Zangvogel, nachttrekker
+238.;Grauwe Vliegenvanger;Berkheide (Katwijk);6;11 mei 2025;9,2;Zeldzaam;Ja;Zangvogel, nachttrekker
+238.;Grauwe Vliegenvanger;Berkheide (Katwijk);8;13 mei 2025;9,2;Zeldzaam;Ja;Zangvogel, nachttrekker
+238.;Grauwe Vliegenvanger;Berkheide (Katwijk);10;1 mei 2025;9,2;Zeldzaam;Ja;Zangvogel, nachttrekker
+238.;Grauwe Vliegenvanger;Berkheide (Katwijk);16;12 mei 2025;9,2;Zeldzaam;Ja;Zangvogel, nachttrekker
+160.;Grauwe/Steppekiekendief;Egmond aan Zee;1;11 mei 2025;1,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+177.;Groene Specht;Diemerpark;2;23 februari 2025;1,4;Zeer zeldzaam;Nee;Standvogel
+177.;Groene Specht;Dordtse Biesbosch;2;3 april 2025;1,4;Zeer zeldzaam;Nee;Standvogel
+177.;Groene Specht;Heidestein (bij Zeist);1;9 februari 2025;1,4;Zeer zeldzaam;Nee;Standvogel
+177.;Groene Specht;Heidestein (bij Zeist);1;12 februari 2025;1,4;Zeer zeldzaam;Nee;Standvogel
+177.;Groene Specht;Heidestein (bij Zeist);1;18 februari 2025;1,4;Zeer zeldzaam;Nee;Standvogel
+273.;Groenling;Vijfhoek Diemen;6;7 maart 2025;7,6;Zeldzaam;Ja;Zangvogel, nachttrekker
+273.;Groenling;Berkheide (Katwijk);7;21 maart 2025;7,6;Zeldzaam;Ja;Zangvogel, nachttrekker
+273.;Groenling;Berkheide (Katwijk);7;3 april 2025;7,6;Zeldzaam;Ja;Zangvogel, nachttrekker
+273.;Groenling;Vijfhoek Diemen;8;21 februari 2025;7,6;Zeldzaam;Ja;Zangvogel, nachttrekker
+273.;Groenling;Dordtse Biesbosch;10;21 februari 2025;7,6;Zeldzaam;Ja;Zangvogel, nachttrekker
+91.;Groenpootruiter;Landje van Geijsel;15;27 april 2025;21,8;Vrij algemeen;Ja;Steltloper, nachttrekker
+91.;Groenpootruiter;Parnassia, Kennemerduinen;17;1 mei 2025;21,8;Vrij algemeen;Ja;Steltloper, nachttrekker
+91.;Groenpootruiter;Castricum aan Zee (zeetrek);19;21 april 2025;21,8;Vrij algemeen;Ja;Steltloper, nachttrekker
+91.;Groenpootruiter;Dordtse Biesbosch;24;26 april 2025;21,8;Vrij algemeen;Ja;Steltloper, nachttrekker
+91.;Groenpootruiter;IJmuiden aan Zee;34;30 april 2025;21,8;Vrij algemeen;Ja;Steltloper, nachttrekker
+184.;Grote Alexanderparkiet;Diemerpark;3;26 april 2025;6,0;Zeldzaam;Nee;Standvogel
+184.;Grote Alexanderparkiet;Diemerpark;9;14 mei 2025;6,0;Zeldzaam;Nee;Standvogel
+275.;Grote Barmsijs;Waverhoek;1;8 maart 2025;1,0;Zeer zeldzaam;Ja;Nachttrekker
+175.;Grote Bonte Specht;Berkheide (Katwijk);2;17 februari 2025;2,2;Zeer zeldzaam;Nee;Standvogel
+175.;Grote Bonte Specht;Berkheide (Katwijk);2;25 februari 2025;2,2;Zeer zeldzaam;Nee;Standvogel
+175.;Grote Bonte Specht;Berkheide (Katwijk);2;26 februari 2025;2,2;Zeer zeldzaam;Nee;Standvogel
+175.;Grote Bonte Specht;Berkheide (Katwijk);2;2 maart 2025;2,2;Zeer zeldzaam;Nee;Standvogel
+175.;Grote Bonte Specht;Berkheide (Katwijk);3;18 maart 2025;2,2;Zeer zeldzaam;Nee;Standvogel
+124.;Grote Burgemeester;IJmuiden aan Zee;1;22 maart 2025;1,0;Zeer zeldzaam;Nee;Dagvlieger
+5.;Grote Canadese Gans;IJmeerdijk, Almere;162;26 mei 2025;293,8;Algemeen;Nee;Dagvlieger
+5.;Grote Canadese Gans;IJmeerdijk, Almere;222;2 juni 2025;293,8;Algemeen;Nee;Dagvlieger
+5.;Grote Canadese Gans;IJmeerdijk, Almere;271;31 mei 2025;293,8;Algemeen;Nee;Dagvlieger
+5.;Grote Canadese Gans;IJmeerdijk, Almere;398;1 juni 2025;293,8;Algemeen;Nee;Dagvlieger
+5.;Grote Canadese Gans;IJmeerdijk, Almere;416;24 mei 2025;293,8;Algemeen;Nee;Dagvlieger
+256.;Grote Gele Kwikstaart;Berkheide (Katwijk);2;22 maart 2025;2,8;Zeer zeldzaam;Nee;Standvogel/dagvlieger
+256.;Grote Gele Kwikstaart;Berkheide (Katwijk);2;29 april 2025;2,8;Zeer zeldzaam;Nee;Standvogel/dagvlieger
+256.;Grote Gele Kwikstaart;Berkheide (Katwijk);6;21 maart 2025;2,8;Zeer zeldzaam;Nee;Standvogel/dagvlieger
+256.;Grote Gele Kwikstaart;Maashorst - Hofmans Plassen;2;22 maart 2025;2,8;Zeer zeldzaam;Nee;Standvogel/dagvlieger
+256.;Grote Gele Kwikstaart;Parnassia, Kennemerduinen;2;18 maart 2025;2,8;Zeer zeldzaam;Nee;Standvogel/dagvlieger
+214.;Grote Karekiet;Maashorst - Hofmans Plassen;1;13 mei 2025;1,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+214.;Grote Karekiet;Maashorst - Hofmans Plassen;1;14 mei 2025;1,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+214.;Grote Karekiet;Maashorst - Hofmans Plassen;1;15 mei 2025;1,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+214.;Grote Karekiet;Maashorst - Hofmans Plassen;1;19 mei 2025;1,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+214.;Grote Karekiet;Maashorst - Hofmans Plassen;1;20 mei 2025;1,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+232.;Grote Lijster;Dordtse Biesbosch;13;29 maart 2025;17,8;Zeldzaam;Ja;Nachttrekker
+232.;Grote Lijster;Berkheide (Katwijk);14;21 maart 2025;17,8;Zeldzaam;Ja;Nachttrekker
+232.;Grote Lijster;Berkheide (Katwijk);14;4 april 2025;17,8;Zeldzaam;Ja;Nachttrekker
+232.;Grote Lijster;Berkheide (Katwijk);16;22 maart 2025;17,8;Zeldzaam;Ja;Nachttrekker
+232.;Grote Lijster;Berkheide (Katwijk);32;3 april 2025;17,8;Zeldzaam;Ja;Nachttrekker
+123.;Grote Mantelmeeuw;Bloemendaal aan Zee;17;30 maart 2025;40,8;Vrij algemeen;Nee;Dagvlieger
+123.;Grote Mantelmeeuw;Paal 19, Texel;20;2 januari 2025;40,8;Vrij algemeen;Nee;Dagvlieger
+123.;Grote Mantelmeeuw;Egmond aan Zee;24;14 juni 2025;40,8;Vrij algemeen;Nee;Dagvlieger
+123.;Grote Mantelmeeuw;Bloemendaal aan Zee;26;3 januari 2025;40,8;Vrij algemeen;Nee;Dagvlieger
+123.;Grote Mantelmeeuw;Paal 19, Texel;117;25 januari 2025;40,8;Vrij algemeen;Nee;Dagvlieger
+261.;Grote Pieper;IJmuiden aan Zee;1;10 mei 2025;1,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+114.;Grote Stern;Egmond aan Zee;948;27 april 2025;1230,6;Algemeen;Nee;Dagvlieger
+114.;Grote Stern;Egmond aan Zee;969;25 april 2025;1230,6;Algemeen;Nee;Dagvlieger
+114.;Grote Stern;Egmond aan Zee;1.031;26 april 2025;1230,6;Algemeen;Nee;Dagvlieger
+114.;Grote Stern;Egmond aan Zee;1.285;30 april 2025;1230,6;Algemeen;Nee;Dagvlieger
+114.;Grote Stern;Egmond aan Zee;1.920;18 april 2025;1230,6;Algemeen;Nee;Dagvlieger
+46.;Grote Zaagbek;Dordtse Biesbosch;11;18 februari 2025;16,8;Zeldzaam;Nee;Dagvlieger
+46.;Grote Zaagbek;Dordtse Biesbosch;12;21 februari 2025;16,8;Zeldzaam;Nee;Dagvlieger
+46.;Grote Zaagbek;Dordtse Biesbosch;12;1 maart 2025;16,8;Zeldzaam;Nee;Dagvlieger
+46.;Grote Zaagbek;Dordtse Biesbosch;17;5 april 2025;16,8;Zeldzaam;Nee;Dagvlieger
+46.;Grote Zaagbek;Dordtse Biesbosch;32;21 maart 2025;16,8;Zeldzaam;Nee;Dagvlieger
+41.;Grote Zee-eend;Paal 19, Texel;5;16 februari 2025;11,0;Zeldzaam;Nee;Dagvlieger
+41.;Grote Zee-eend;Bloemendaal aan Zee;7;1 maart 2025;11,0;Zeldzaam;Nee;Dagvlieger
+41.;Grote Zee-eend;Bloemendaal aan Zee;8;10 maart 2025;11,0;Zeldzaam;Nee;Dagvlieger
+41.;Grote Zee-eend;Castricum aan Zee (zeetrek);8;20 maart 2025;11,0;Zeldzaam;Nee;Dagvlieger
+41.;Grote Zee-eend;Castricum aan Zee (zeetrek);27;2 januari 2025;11,0;Zeldzaam;Nee;Dagvlieger
+145.;Grote Zilverreiger;IJmeerdijk, Almere;18;22 maart 2025;24,4;Vrij algemeen;Nee;Dagvlieger
+145.;Grote Zilverreiger;Parnassia, Kennemerduinen;18;30 april 2025;24,4;Vrij algemeen;Nee;Dagvlieger
+145.;Grote Zilverreiger;Parnassia, Kennemerduinen;19;3 mei 2025;24,4;Vrij algemeen;Nee;Dagvlieger
+145.;Grote Zilverreiger;IJmeerdijk, Almere;23;12 mei 2025;24,4;Vrij algemeen;Nee;Dagvlieger
+145.;Grote Zilverreiger;Dordtse Biesbosch;44;4 april 2025;24,4;Vrij algemeen;Nee;Dagvlieger
+81.;Grutto;Dordtse Biesbosch;210;20 maart 2025;528,8;Algemeen;Ja;Steltloper, nachttrekker
+81.;Grutto;Dordtse Biesbosch;245;21 maart 2025;528,8;Algemeen;Ja;Steltloper, nachttrekker
+81.;Grutto;Landje van Geijsel;273;7 maart 2025;528,8;Algemeen;Ja;Steltloper, nachttrekker
+81.;Grutto;Landje van Geijsel;468;23 februari 2025;528,8;Algemeen;Ja;Steltloper, nachttrekker
+81.;Grutto;Landje van Geijsel;1.448;25 februari 2025;528,8;Algemeen;Ja;Steltloper, nachttrekker
+185.;Halsbandparkiet;Diemerpark;7;26 maart 2025;11,2;Zeldzaam;Nee;Standvogel
+185.;Halsbandparkiet;Diemerpark;8;28 februari 2025;11,2;Zeldzaam;Nee;Standvogel
+185.;Halsbandparkiet;Diemerpark;11;10 mei 2025;11,2;Zeldzaam;Nee;Standvogel
+185.;Halsbandparkiet;Diemerpark;13;9 maart 2025;11,2;Zeldzaam;Nee;Standvogel
+185.;Halsbandparkiet;Diemerpark;17;14 mei 2025;11,2;Zeldzaam;Nee;Standvogel
+153.;Havik;Dordtse Biesbosch;2;28 januari 2025;3,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+153.;Havik;Dordtse Biesbosch;3;5 april 2025;3,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+153.;Havik;Heidestein (bij Zeist);2;14 januari 2025;3,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+153.;Havik;Heidestein (bij Zeist);4;19 februari 2025;3,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+153.;Havik;Heidestein (bij Zeist);4;7 maart 2025;3,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+251.;Heggenmus;Berkheide (Katwijk);4;26 februari 2025;5,2;Zeldzaam;Ja;Zangvogel, nachttrekker
+251.;Heggenmus;Parnassia, Kennemerduinen;4;7 maart 2025;5,2;Zeldzaam;Ja;Zangvogel, nachttrekker
+251.;Heggenmus;IJmuiden aan Zee;4;7 maart 2025;5,2;Zeldzaam;Ja;Zangvogel, nachttrekker
+251.;Heggenmus;Vijfhoek Diemen;4;8 maart 2025;5,2;Zeldzaam;Ja;Zangvogel, nachttrekker
+251.;Heggenmus;IJmuiden aan Zee;10;8 maart 2025;5,2;Zeldzaam;Ja;Zangvogel, nachttrekker
+53.;Holenduif;Berkheide (Katwijk);11;6 maart 2025;19,4;Zeldzaam;Nee;Dagvlieger
+53.;Holenduif;Heidestein (bij Zeist);12;4 april 2025;19,4;Zeldzaam;Nee;Dagvlieger
+53.;Holenduif;Heidestein (bij Zeist);12;23 april 2025;19,4;Zeldzaam;Nee;Dagvlieger
+53.;Holenduif;Dordtse Biesbosch;20;24 maart 2025;19,4;Zeldzaam;Nee;Dagvlieger
+53.;Holenduif;Dordtse Biesbosch;42;3 april 2025;19,4;Zeldzaam;Nee;Dagvlieger
+170.;Hop;Heidestein (bij Zeist);1;13 april 2025;1,0;Zeer zeldzaam;Ja;Trekt 's nachts
+170.;Hop;IJmuiden aan Zee;1;4 april 2025;1,0;Zeer zeldzaam;Ja;Trekt 's nachts
+170.;Hop;Meijendel (Wassenaar);1;11 mei 2025;1,0;Zeer zeldzaam;Ja;Trekt 's nachts
+170.;Hop;Meijendel (Wassenaar);1;12 mei 2025;1,0;Zeer zeldzaam;Ja;Trekt 's nachts
+170.;Hop;Parnassia, Kennemerduinen;1;15 april 2025;1,0;Zeer zeldzaam;Ja;Trekt 's nachts
+54.;Houtduif;Parnassia, Kennemerduinen;476;19 maart 2025;801,2;Algemeen;Nee;Dagvlieger
+54.;Houtduif;Berkheide (Katwijk);590;4 april 2025;801,2;Algemeen;Nee;Dagvlieger
+54.;Houtduif;Maashorst - Hofmans Plassen;640;20 maart 2025;801,2;Algemeen;Nee;Dagvlieger
+54.;Houtduif;Heidestein (bij Zeist);948;19 maart 2025;801,2;Algemeen;Nee;Dagvlieger
+54.;Houtduif;Berkheide (Katwijk);1.352;19 maart 2025;801,2;Algemeen;Nee;Dagvlieger
+84.;Houtsnip;Diemerpark;1;20 maart 2025;1,2;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+84.;Houtsnip;Parnassia, Kennemerduinen;1;8 april 2025;1,2;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+84.;Houtsnip;Vijfhoek Diemen;1;8 maart 2025;1,2;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+84.;Houtsnip;Vijfhoek Diemen;2;7 maart 2025;1,2;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+250.;Huismus;Berkheide (Katwijk);1;4 april 2025;1,0;Zeer zeldzaam;Nee;Standvogel
+250.;Huismus;Berkheide (Katwijk);1;7 april 2025;1,0;Zeer zeldzaam;Nee;Standvogel
+250.;Huismus;Maashorst - Hofmans Plassen;1;1 april 2025;1,0;Zeer zeldzaam;Nee;Standvogel
+250.;Huismus;Maashorst - Hofmans Plassen;1;2 april 2025;1,0;Zeer zeldzaam;Nee;Standvogel
+250.;Huismus;Waverhoek;1;21 maart 2025;1,0;Zeer zeldzaam;Nee;Standvogel
+205.;Huiszwaluw;Heidestein (bij Zeist);34;13 mei 2025;127,0;Algemeen;Nee;Dagvlieger
+205.;Huiszwaluw;Berkheide (Katwijk);59;10 mei 2025;127,0;Algemeen;Nee;Dagvlieger
+205.;Huiszwaluw;Berkheide (Katwijk);155;13 mei 2025;127,0;Algemeen;Nee;Dagvlieger
+205.;Huiszwaluw;Berkheide (Katwijk);184;11 mei 2025;127,0;Algemeen;Nee;Dagvlieger
+205.;Huiszwaluw;Berkheide (Katwijk);203;12 mei 2025;127,0;Algemeen;Nee;Dagvlieger
+43.;IJseend;Egmond aan Zee;1;18 maart 2025;1,2;Zeer zeldzaam;Nee;Dagvlieger
+43.;IJseend;Egmond aan Zee;1;28 april 2025;1,2;Zeer zeldzaam;Nee;Dagvlieger
+43.;IJseend;IJmuiden aan Zee;1;28 april 2025;1,2;Zeer zeldzaam;Nee;Dagvlieger
+43.;IJseend;Paal 19, Texel;1;4 januari 2025;1,2;Zeer zeldzaam;Nee;Dagvlieger
+43.;IJseend;Paal 19, Texel;2;25 januari 2025;1,2;Zeer zeldzaam;Nee;Dagvlieger
+82.;IJslandse Grutto;Landje van Geijsel;3;7 maart 2025;3,0;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+171.;IJsvogel;Dordtse Biesbosch;1;21 maart 2025;1,0;Zeer zeldzaam;Nee;Standvogel/dagvlieger
+171.;IJsvogel;Maashorst - Hofmans Plassen;1;10 maart 2025;1,0;Zeer zeldzaam;Nee;Standvogel/dagvlieger
+171.;IJsvogel;Maashorst - Hofmans Plassen;1;16 maart 2025;1,0;Zeer zeldzaam;Nee;Standvogel/dagvlieger
+171.;IJsvogel;Maashorst - Hofmans Plassen;1;22 mei 2025;1,0;Zeer zeldzaam;Nee;Standvogel/dagvlieger
+171.;IJsvogel;Waverhoek;1;7 april 2025;1,0;Zeer zeldzaam;Nee;Standvogel/dagvlieger
+138.;Jan-van-gent;Paal 19, Texel;107;31 maart 2025;174,0;Algemeen;Nee;Dagvlieger
+138.;Jan-van-gent;Egmond aan Zee;135;30 maart 2025;174,0;Algemeen;Nee;Dagvlieger
+138.;Jan-van-gent;Egmond aan Zee;137;23 maart 2025;174,0;Algemeen;Nee;Dagvlieger
+138.;Jan-van-gent;Paal 19, Texel;191;2 januari 2025;174,0;Algemeen;Nee;Dagvlieger
+138.;Jan-van-gent;Paal 19, Texel;300;30 maart 2025;174,0;Algemeen;Nee;Dagvlieger
+93.;Kanoet;Castricum aan Zee (zeetrek);239;10 mei 2025;1003,6;Algemeen;Ja;Steltloper, nachttrekker
+93.;Kanoet;Egmond aan Zee;333;5 mei 2025;1003,6;Algemeen;Ja;Steltloper, nachttrekker
+93.;Kanoet;IJmuiden aan Zee;371;5 mei 2025;1003,6;Algemeen;Ja;Steltloper, nachttrekker
+93.;Kanoet;Castricum aan Zee (zeetrek);2.006;5 mei 2025;1003,6;Algemeen;Ja;Steltloper, nachttrekker
+93.;Kanoet;Bloemendaal aan Zee;2.069;5 mei 2025;1003,6;Algemeen;Ja;Steltloper, nachttrekker
+189.;Kauw;Heidestein (bij Zeist);57;19 maart 2025;66,6;Vrij algemeen;Nee;Standvogel
+189.;Kauw;Waverhoek;57;21 maart 2025;66,6;Vrij algemeen;Nee;Standvogel
+189.;Kauw;Vijfhoek Diemen;61;20 maart 2025;66,6;Vrij algemeen;Nee;Standvogel
+189.;Kauw;Vijfhoek Diemen;74;8 maart 2025;66,6;Vrij algemeen;Nee;Standvogel
+189.;Kauw;Berkheide (Katwijk);84;1 mei 2025;66,6;Vrij algemeen;Nee;Standvogel
+270.;Keep;Heidestein (bij Zeist);5;7 maart 2025;17,0;Zeldzaam;Ja;Zangvogel, nachttrekker
+270.;Keep;Heidestein (bij Zeist);6;8 maart 2025;17,0;Zeldzaam;Ja;Zangvogel, nachttrekker
+270.;Keep;Heidestein (bij Zeist);8;21 februari 2025;17,0;Zeldzaam;Ja;Zangvogel, nachttrekker
+270.;Keep;Heidestein (bij Zeist);22;10 januari 2025;17,0;Zeldzaam;Ja;Zangvogel, nachttrekker
+270.;Keep;Heidestein (bij Zeist);44;16 februari 2025;17,0;Zeldzaam;Ja;Zangvogel, nachttrekker
+94.;Kemphaan;Dordtse Biesbosch;31;4 april 2025;38,8;Vrij algemeen;Ja;Steltloper, nachttrekker
+94.;Kemphaan;IJmuiden aan Zee;32;19 maart 2025;38,8;Vrij algemeen;Ja;Steltloper, nachttrekker
+94.;Kemphaan;Parnassia, Kennemerduinen;32;30 april 2025;38,8;Vrij algemeen;Ja;Steltloper, nachttrekker
+94.;Kemphaan;Landje van Geijsel;37;6 april 2025;38,8;Vrij algemeen;Ja;Steltloper, nachttrekker
+94.;Kemphaan;Bloemendaal aan Zee;62;3 april 2025;38,8;Vrij algemeen;Ja;Steltloper, nachttrekker
+76.;Kievit;Waverhoek;480;26 februari 2025;1221,4;Algemeen;Ja;Trekt 's nachts
+76.;Kievit;Dordtse Biesbosch;691;14 februari 2025;1221,4;Algemeen;Ja;Trekt 's nachts
+76.;Kievit;Heidestein (bij Zeist);1.269;21 februari 2025;1221,4;Algemeen;Ja;Trekt 's nachts
+76.;Kievit;IJmeerdijk, Almere;1.614;23 februari 2025;1221,4;Algemeen;Ja;Trekt 's nachts
+76.;Kievit;Landje van Geijsel;2.053;23 februari 2025;1221,4;Algemeen;Ja;Trekt 's nachts
+276.;Kleine Barmsijs;Castricum aan Zee (zeetrek);1;27 april 2025;1,0;Zeer zeldzaam;Ja;Nachttrekker
+276.;Kleine Barmsijs;Heidestein (bij Zeist);1;7 maart 2025;1,0;Zeer zeldzaam;Ja;Nachttrekker
+276.;Kleine Barmsijs;IJmuiden aan Zee;1;4 april 2025;1,0;Zeer zeldzaam;Ja;Nachttrekker
+276.;Kleine Barmsijs;IJmuiden aan Zee;1;12 april 2025;1,0;Zeer zeldzaam;Ja;Nachttrekker
+174.;Kleine Bonte Specht;Heidestein (bij Zeist);1;10 januari 2025;1,6;Zeer zeldzaam;Nee;Standvogel
+174.;Kleine Bonte Specht;Heidestein (bij Zeist);1;9 februari 2025;1,6;Zeer zeldzaam;Nee;Standvogel
+174.;Kleine Bonte Specht;Heidestein (bij Zeist);1;12 februari 2025;1,6;Zeer zeldzaam;Nee;Standvogel
+174.;Kleine Bonte Specht;Heidestein (bij Zeist);3;28 februari 2025;1,6;Zeer zeldzaam;Nee;Standvogel
+174.;Kleine Bonte Specht;Maashorst - Hofmans Plassen;2;28 maart 2025;1,6;Zeer zeldzaam;Nee;Standvogel
+127.;Kleine Burgemeester;Vijfhoek Diemen;1;23 maart 2025;1,0;Zeer zeldzaam;Nee;Dagvlieger
+8.;Kleine Canadese Gans;Parnassia, Kennemerduinen;1;9 maart 2025;1,0;Zeer zeldzaam;Nee;Dagvlieger
+128.;Kleine Jager;Bloemendaal aan Zee;1;8 mei 2025;1,6;Zeer zeldzaam;Nee;Dagvlieger op zee
+128.;Kleine Jager;Castricum aan Zee (zeetrek);1;11 mei 2025;1,6;Zeer zeldzaam;Nee;Dagvlieger op zee
+128.;Kleine Jager;Egmond aan Zee;1;30 maart 2025;1,6;Zeer zeldzaam;Nee;Dagvlieger op zee
+128.;Kleine Jager;Egmond aan Zee;3;4 mei 2025;1,6;Zeer zeldzaam;Nee;Dagvlieger op zee
+128.;Kleine Jager;Paal 19, Texel;2;4 mei 2025;1,6;Zeer zeldzaam;Nee;Dagvlieger op zee
+216.;Kleine Karekiet;Dordtse Biesbosch;1;12 april 2025;2,3;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+216.;Kleine Karekiet;Maashorst - Hofmans Plassen;2;28 april 2025;2,3;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+216.;Kleine Karekiet;Maashorst - Hofmans Plassen;4;22 mei 2025;2,3;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+125.;Kleine Mantelmeeuw;Berkheide (Katwijk);346;9 maart 2025;486,2;Algemeen;Nee;Dagvlieger
+125.;Kleine Mantelmeeuw;Berkheide (Katwijk);429;20 maart 2025;486,2;Algemeen;Nee;Dagvlieger
+125.;Kleine Mantelmeeuw;Parnassia, Kennemerduinen;507;9 maart 2025;486,2;Algemeen;Nee;Dagvlieger
+125.;Kleine Mantelmeeuw;Berkheide (Katwijk);513;20 mei 2025;486,2;Algemeen;Nee;Dagvlieger
+125.;Kleine Mantelmeeuw;Bloemendaal aan Zee;636;9 maart 2025;486,2;Algemeen;Nee;Dagvlieger
+75.;Kleine Plevier;Maashorst - Hofmans Plassen;8;8 april 2025;12,6;Zeldzaam;Ja;Steltloper, nachttrekker
+75.;Kleine Plevier;Berkheide (Katwijk);8;12 april 2025;12,6;Zeldzaam;Ja;Steltloper, nachttrekker
+75.;Kleine Plevier;Maashorst - Hofmans Plassen;10;28 maart 2025;12,6;Zeldzaam;Ja;Steltloper, nachttrekker
+75.;Kleine Plevier;Dordtse Biesbosch;11;4 april 2025;12,6;Zeldzaam;Ja;Steltloper, nachttrekker
+75.;Kleine Plevier;IJmeerdijk, Almere;26;16 mei 2025;12,6;Zeldzaam;Ja;Steltloper, nachttrekker
+15.;Kleine Rietgans;Parnassia, Kennemerduinen;100;21 februari 2025;248,0;Algemeen;Nee;Dagvlieger
+15.;Kleine Rietgans;Egmond aan Zee;150;21 februari 2025;248,0;Algemeen;Nee;Dagvlieger
+15.;Kleine Rietgans;Castricum aan Zee (zeetrek);263;26 februari 2025;248,0;Algemeen;Nee;Dagvlieger
+15.;Kleine Rietgans;Paal 19, Texel;340;21 februari 2025;248,0;Algemeen;Nee;Dagvlieger
+15.;Kleine Rietgans;Bloemendaal aan Zee;387;26 februari 2025;248,0;Algemeen;Nee;Dagvlieger
+103.;Kleine Strandloper;Bloemendaal aan Zee;2;5 mei 2025;2,6;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+103.;Kleine Strandloper;Bloemendaal aan Zee;3;7 mei 2025;2,6;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+103.;Kleine Strandloper;Bloemendaal aan Zee;3;14 mei 2025;2,6;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+103.;Kleine Strandloper;Bloemendaal aan Zee;3;19 mei 2025;2,6;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+103.;Kleine Strandloper;IJmeerdijk, Almere;2;10 april 2025;2,6;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+143.;Kleine Zilverreiger;Dordtse Biesbosch;4;12 april 2025;6,2;Zeldzaam;Nee;Dagvlieger
+143.;Kleine Zilverreiger;Dordtse Biesbosch;4;21 april 2025;6,2;Zeldzaam;Nee;Dagvlieger
+143.;Kleine Zilverreiger;Dordtse Biesbosch;4;26 april 2025;6,2;Zeldzaam;Nee;Dagvlieger
+143.;Kleine Zilverreiger;Dordtse Biesbosch;8;19 april 2025;6,2;Zeldzaam;Nee;Dagvlieger
+143.;Kleine Zilverreiger;Dordtse Biesbosch;11;12 februari 2025;6,2;Zeldzaam;Nee;Dagvlieger
+20.;Kleine Zwaan;Waverhoek;5;3 februari 2025;8,2;Zeldzaam;Nee;Dagvlieger
+20.;Kleine Zwaan;IJmeerdijk, Almere;5;19 maart 2025;8,2;Zeldzaam;Nee;Dagvlieger
+20.;Kleine Zwaan;IJmeerdijk, Almere;6;29 januari 2025;8,2;Zeldzaam;Nee;Dagvlieger
+20.;Kleine Zwaan;IJmeerdijk, Almere;9;10 januari 2025;8,2;Zeldzaam;Nee;Dagvlieger
+20.;Kleine Zwaan;IJmeerdijk, Almere;16;4 januari 2025;8,2;Zeldzaam;Nee;Dagvlieger
+70.;Kluut;IJmuiden aan Zee;86;22 maart 2025;121,4;Algemeen;Nee;Dagvlieger
+70.;Kluut;Castricum aan Zee (zeetrek);102;19 maart 2025;121,4;Algemeen;Nee;Dagvlieger
+70.;Kluut;Egmond aan Zee;111;19 maart 2025;121,4;Algemeen;Nee;Dagvlieger
+70.;Kluut;IJmuiden aan Zee;135;19 maart 2025;121,4;Algemeen;Nee;Dagvlieger
+70.;Kluut;Castricum aan Zee (zeetrek);173;20 maart 2025;121,4;Algemeen;Nee;Dagvlieger
+274.;Kneu;IJmeerdijk, Almere;78;9 juni 2025;83,4;Vrij algemeen;Ja;Zangvogel, nachttrekker
+274.;Kneu;IJmeerdijk, Almere;81;7 juni 2025;83,4;Vrij algemeen;Ja;Zangvogel, nachttrekker
+274.;Kneu;IJmeerdijk, Almere;82;29 mei 2025;83,4;Vrij algemeen;Ja;Zangvogel, nachttrekker
+274.;Kneu;IJmeerdijk, Almere;82;30 mei 2025;83,4;Vrij algemeen;Ja;Zangvogel, nachttrekker
+274.;Kneu;IJmeerdijk, Almere;94;28 mei 2025;83,4;Vrij algemeen;Ja;Zangvogel, nachttrekker
+19.;Knobbelzwaan;IJmeerdijk, Almere;34;2 mei 2025;39,2;Vrij algemeen;Nee;Standvogel/dagvlieger
+19.;Knobbelzwaan;Waverhoek;37;6 maart 2025;39,2;Vrij algemeen;Nee;Standvogel/dagvlieger
+19.;Knobbelzwaan;IJmeerdijk, Almere;37;29 april 2025;39,2;Vrij algemeen;Nee;Standvogel/dagvlieger
+19.;Knobbelzwaan;IJmeerdijk, Almere;40;11 mei 2025;39,2;Vrij algemeen;Nee;Standvogel/dagvlieger
+19.;Knobbelzwaan;IJmeerdijk, Almere;48;3 mei 2025;39,2;Vrij algemeen;Nee;Standvogel/dagvlieger
+51.;Koekoek;Berkheide (Katwijk);4;12 mei 2025;3,6;Zeer zeldzaam;Ja;Trekt 's nachts
+51.;Koekoek;Dordtse Biesbosch;3;13 mei 2025;3,6;Zeer zeldzaam;Ja;Trekt 's nachts
+51.;Koekoek;Dordtse Biesbosch;4;26 april 2025;3,6;Zeer zeldzaam;Ja;Trekt 's nachts
+51.;Koekoek;Meijendel (Wassenaar);3;11 mei 2025;3,6;Zeer zeldzaam;Ja;Trekt 's nachts
+51.;Koekoek;Parnassia, Kennemerduinen;4;11 mei 2025;3,6;Zeer zeldzaam;Ja;Trekt 's nachts
+144.;Koereiger;Bloemendaal aan Zee;1;18 februari 2025;5,2;Zeldzaam;Nee;Dagvlieger
+144.;Koereiger;Waverhoek;1;6 maart 2025;5,2;Zeldzaam;Nee;Dagvlieger
+144.;Koereiger;Dordtse Biesbosch;3;19 april 2025;5,2;Zeldzaam;Nee;Dagvlieger
+144.;Koereiger;Dordtse Biesbosch;5;13 mei 2025;5,2;Zeldzaam;Nee;Dagvlieger
+144.;Koereiger;Dordtse Biesbosch;16;12 mei 2025;5,2;Zeldzaam;Nee;Dagvlieger
+117.;Kokmeeuw;Landje van Geijsel;2.065;25 februari 2025;2259,2;Algemeen;Nee;Dagvlieger
+117.;Kokmeeuw;Parnassia, Kennemerduinen;2.179;21 maart 2025;2259,2;Algemeen;Nee;Dagvlieger
+117.;Kokmeeuw;Landje van Geijsel;2.214;2 maart 2025;2259,2;Algemeen;Nee;Dagvlieger
+117.;Kokmeeuw;Bloemendaal aan Zee;2.348;22 maart 2025;2259,2;Algemeen;Nee;Dagvlieger
+117.;Kokmeeuw;Landje van Geijsel;2.490;23 maart 2025;2259,2;Algemeen;Nee;Dagvlieger
+18.;Kolgans;IJmeerdijk, Almere;6.868;1 januari 2025;8821,8;Algemeen;Nee;Dagvlieger
+18.;Kolgans;IJmeerdijk, Almere;7.136;30 januari 2025;8821,8;Algemeen;Nee;Dagvlieger
+18.;Kolgans;IJmeerdijk, Almere;7.260;26 januari 2025;8821,8;Algemeen;Nee;Dagvlieger
+18.;Kolgans;IJmeerdijk, Almere;9.014;23 februari 2025;8821,8;Algemeen;Nee;Dagvlieger
+18.;Kolgans;IJmeerdijk, Almere;13.831;22 februari 2025;8821,8;Algemeen;Nee;Dagvlieger
+197.;Koolmees;Dordtse Biesbosch;4;18 maart 2025;6,8;Zeldzaam;Nee;Standvogel
+197.;Koolmees;Dordtse Biesbosch;5;10 mei 2025;6,8;Zeldzaam;Nee;Standvogel
+197.;Koolmees;Dordtse Biesbosch;6;18 februari 2025;6,8;Zeldzaam;Nee;Standvogel
+197.;Koolmees;Dordtse Biesbosch;8;21 februari 2025;6,8;Zeldzaam;Nee;Standvogel
+197.;Koolmees;Dordtse Biesbosch;11;20 maart 2025;6,8;Zeldzaam;Nee;Standvogel
+233.;Koperwiek;Vijfhoek Diemen;469;27 maart 2025;1705,8;Algemeen;Ja;Lijster, nachttrekker
+233.;Koperwiek;Vijfhoek Diemen;1.092;25 maart 2025;1705,8;Algemeen;Ja;Lijster, nachttrekker
+233.;Koperwiek;Vijfhoek Diemen;1.332;23 maart 2025;1705,8;Algemeen;Ja;Lijster, nachttrekker
+233.;Koperwiek;Dordtse Biesbosch;2.000;22 maart 2025;1705,8;Algemeen;Ja;Lijster, nachttrekker
+233.;Koperwiek;Vijfhoek Diemen;3.636;22 maart 2025;1705,8;Algemeen;Ja;Lijster, nachttrekker
+61.;Kraanvogel;Heidestein (bij Zeist);1;9 april 2025;14,6;Zeldzaam;Nee;Dag- en nachtvlieger
+61.;Kraanvogel;Maashorst - Hofmans Plassen;2;20 maart 2025;14,6;Zeldzaam;Nee;Dag- en nachtvlieger
+61.;Kraanvogel;Maashorst - Hofmans Plassen;2;5 april 2025;14,6;Zeldzaam;Nee;Dag- en nachtvlieger
+61.;Kraanvogel;Heidestein (bij Zeist);13;19 februari 2025;14,6;Zeldzaam;Nee;Dag- en nachtvlieger
+61.;Kraanvogel;Maashorst - Hofmans Plassen;55;22 maart 2025;14,6;Zeldzaam;Nee;Dag- en nachtvlieger
+28.;Krakeend;IJmeerdijk, Almere;61;5 juni 2025;93,6;Vrij algemeen;Nee;Dagvlieger
+28.;Krakeend;IJmeerdijk, Almere;74;1 juni 2025;93,6;Vrij algemeen;Nee;Dagvlieger
+28.;Krakeend;IJmeerdijk, Almere;84;13 juni 2025;93,6;Vrij algemeen;Nee;Dagvlieger
+28.;Krakeend;IJmeerdijk, Almere;109;15 juni 2025;93,6;Vrij algemeen;Nee;Dagvlieger
+28.;Krakeend;IJmeerdijk, Almere;140;14 juni 2025;93,6;Vrij algemeen;Nee;Dagvlieger
+235.;Kramsvogel;Vijfhoek Diemen;172;22 maart 2025;206,0;Algemeen;Ja;Lijster, nachttrekker
+235.;Kramsvogel;Vijfhoek Diemen;176;23 maart 2025;206,0;Algemeen;Ja;Lijster, nachttrekker
+235.;Kramsvogel;Vijfhoek Diemen;181;12 april 2025;206,0;Algemeen;Ja;Lijster, nachttrekker
+235.;Kramsvogel;Maashorst - Hofmans Plassen;245;4 april 2025;206,0;Algemeen;Ja;Lijster, nachttrekker
+235.;Kramsvogel;Vijfhoek Diemen;256;4 april 2025;206,0;Algemeen;Ja;Lijster, nachttrekker
+98.;Krombekstrandloper;Bloemendaal aan Zee;1;8 mei 2025;1,7;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+98.;Krombekstrandloper;Castricum aan Zee (zeetrek);1;11 mei 2025;1,7;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+98.;Krombekstrandloper;Castricum aan Zee (zeetrek);3;5 mei 2025;1,7;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+35.;Krooneend;IJmeerdijk, Almere;7;20 april 2025;9,0;Zeldzaam;Nee;Dagvlieger
+35.;Krooneend;Vijfhoek Diemen;8;5 mei 2025;9,0;Zeldzaam;Nee;Dagvlieger
+35.;Krooneend;Berkheide (Katwijk);9;4 april 2025;9,0;Zeldzaam;Nee;Dagvlieger
+35.;Krooneend;IJmeerdijk, Almere;10;5 april 2025;9,0;Zeldzaam;Nee;Dagvlieger
+35.;Krooneend;IJmeerdijk, Almere;11;9 maart 2025;9,0;Zeldzaam;Nee;Dagvlieger
+278.;Kruisbek;Berkheide (Katwijk);2;6 maart 2025;2,2;Zeer zeldzaam;Nee;Dagvlieger/invasievogel
+278.;Kruisbek;Heidestein (bij Zeist);1;9 maart 2025;2,2;Zeer zeldzaam;Nee;Dagvlieger/invasievogel
+278.;Kruisbek;Heidestein (bij Zeist);2;13 juni 2025;2,2;Zeer zeldzaam;Nee;Dagvlieger/invasievogel
+278.;Kruisbek;IJmeerdijk, Almere;4;9 juni 2025;2,2;Zeer zeldzaam;Nee;Dagvlieger/invasievogel
+65.;Kuifduiker;IJmeerdijk, Almere;5;15 februari 2025;7,2;Zeldzaam;Nee;Dagvlieger
+65.;Kuifduiker;IJmeerdijk, Almere;7;14 februari 2025;7,2;Zeldzaam;Nee;Dagvlieger
+65.;Kuifduiker;IJmeerdijk, Almere;7;20 februari 2025;7,2;Zeldzaam;Nee;Dagvlieger
+65.;Kuifduiker;IJmeerdijk, Almere;8;25 januari 2025;7,2;Zeldzaam;Nee;Dagvlieger
+65.;Kuifduiker;IJmeerdijk, Almere;9;6 maart 2025;7,2;Zeldzaam;Nee;Dagvlieger
+37.;Kuifeend;IJmeerdijk, Almere;88;1 maart 2025;413,4;Algemeen;Nee;Dagvlieger
+37.;Kuifeend;IJmeerdijk, Almere;107;6 januari 2025;413,4;Algemeen;Nee;Dagvlieger
+37.;Kuifeend;IJmeerdijk, Almere;107;23 januari 2025;413,4;Algemeen;Nee;Dagvlieger
+37.;Kuifeend;IJmeerdijk, Almere;265;28 januari 2025;413,4;Algemeen;Nee;Dagvlieger
+37.;Kuifeend;Dordtse Biesbosch;1.500;9 februari 2025;413,4;Algemeen;Nee;Dagvlieger
+194.;Kuifmees;Berkheide (Katwijk);1;15 april 2025;1,0;Zeer zeldzaam;Nee;Standvogel
+194.;Kuifmees;Maashorst - Hofmans Plassen;1;20 maart 2025;1,0;Zeer zeldzaam;Nee;Standvogel
+49.;Kwartel;Maashorst - Hofmans Plassen;1;29 mei 2025;1,0;Zeer zeldzaam;Ja;Nachttrekker
+106.;Lachstern;Berkheide (Katwijk);1;30 april 2025;1,8;Zeer zeldzaam;Nee;Dagvlieger
+106.;Lachstern;Bloemendaal aan Zee;2;5 mei 2025;1,8;Zeer zeldzaam;Nee;Dagvlieger
+106.;Lachstern;Bloemendaal aan Zee;2;6 mei 2025;1,8;Zeer zeldzaam;Nee;Dagvlieger
+106.;Lachstern;Castricum aan Zee (zeetrek);2;10 mei 2025;1,8;Zeer zeldzaam;Nee;Dagvlieger
+106.;Lachstern;Egmond aan Zee;2;9 mei 2025;1,8;Zeer zeldzaam;Nee;Dagvlieger
+141.;Lepelaar;Dordtse Biesbosch;58;13 mei 2025;64,2;Vrij algemeen;Nee;Dagvlieger
+141.;Lepelaar;Berkheide (Katwijk);63;21 maart 2025;64,2;Vrij algemeen;Nee;Dagvlieger
+141.;Lepelaar;Berkheide (Katwijk);65;6 april 2025;64,2;Vrij algemeen;Nee;Dagvlieger
+141.;Lepelaar;Parnassia, Kennemerduinen;65;15 april 2025;64,2;Vrij algemeen;Nee;Dagvlieger
+141.;Lepelaar;Berkheide (Katwijk);70;15 april 2025;64,2;Vrij algemeen;Nee;Dagvlieger
+25.;Mandarijneend;Bloemendaal aan Zee;1;7 mei 2025;1,0;Zeer zeldzaam;Nee;Standvogel
+25.;Mandarijneend;Parnassia, Kennemerduinen;1;6 april 2025;1,0;Zeer zeldzaam;Nee;Standvogel
+195.;Matkop;Dordtse Biesbosch;1;20 maart 2025;1,2;Zeer zeldzaam;Nee;Standvogel
+195.;Matkop;Dordtse Biesbosch;1;21 maart 2025;1,2;Zeer zeldzaam;Nee;Standvogel
+195.;Matkop;Dordtse Biesbosch;1;5 april 2025;1,2;Zeer zeldzaam;Nee;Standvogel
+195.;Matkop;Dordtse Biesbosch;1;12 mei 2025;1,2;Zeer zeldzaam;Nee;Standvogel
+195.;Matkop;Dordtse Biesbosch;2;8 maart 2025;1,2;Zeer zeldzaam;Nee;Standvogel
+60.;Meerkoet;Maashorst - Hofmans Plassen;1;11 april 2025;1,0;Zeer zeldzaam;Nee;Standvogel/dagvlieger
+234.;Merel;Vijfhoek Diemen;3;21 maart 2025;6,8;Zeldzaam;Ja;Zangvogel, nachttrekker
+234.;Merel;Vijfhoek Diemen;4;25 maart 2025;6,8;Zeldzaam;Ja;Zangvogel, nachttrekker
+234.;Merel;Dordtse Biesbosch;4;10 april 2025;6,8;Zeldzaam;Ja;Zangvogel, nachttrekker
+234.;Merel;Vijfhoek Diemen;8;8 maart 2025;6,8;Zeldzaam;Ja;Zangvogel, nachttrekker
+234.;Merel;IJmuiden aan Zee;15;21 maart 2025;6,8;Zeldzaam;Ja;Zangvogel, nachttrekker
+166.;middelgrote roofvogel;Heidestein (bij Zeist);1;13 mei 2025;1,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+173.;Middelste Bonte Specht;Maashorst - Hofmans Plassen;1;27 april 2025;1,0;Zeer zeldzaam;Nee;Standvogel
+47.;Middelste Zaagbek;Castricum aan Zee (zeetrek);41;30 maart 2025;49,2;Vrij algemeen;Nee;Dagvlieger
+47.;Middelste Zaagbek;Castricum aan Zee (zeetrek);46;4 april 2025;49,2;Vrij algemeen;Nee;Dagvlieger
+47.;Middelste Zaagbek;Parnassia, Kennemerduinen;50;4 april 2025;49,2;Vrij algemeen;Nee;Dagvlieger
+47.;Middelste Zaagbek;Castricum aan Zee (zeetrek);51;19 maart 2025;49,2;Vrij algemeen;Nee;Dagvlieger
+47.;Middelste Zaagbek;Castricum aan Zee (zeetrek);58;8 april 2025;49,2;Vrij algemeen;Nee;Dagvlieger
+73.;Morinelplevier;Berkheide (Katwijk);1;30 april 2025;1,5;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+73.;Morinelplevier;Heidestein (bij Zeist);2;7 mei 2025;1,5;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+240.;Nachtegaal;Berkheide (Katwijk);2;15 april 2025;2,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+240.;Nachtegaal;Diemerpark;2;13 april 2025;2,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+240.;Nachtegaal;Parnassia, Kennemerduinen;2;15 april 2025;2,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+240.;Nachtegaal;Parnassia, Kennemerduinen;2;19 april 2025;2,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+240.;Nachtegaal;Parnassia, Kennemerduinen;3;27 april 2025;2,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+22.;Nijlgans;Bloemendaal aan Zee;43;8 maart 2025;54,8;Vrij algemeen;Nee;Standvogel
+22.;Nijlgans;Berkheide (Katwijk);44;15 april 2025;54,8;Vrij algemeen;Nee;Standvogel
+22.;Nijlgans;Parnassia, Kennemerduinen;54;19 april 2025;54,8;Vrij algemeen;Nee;Standvogel
+22.;Nijlgans;IJmuiden aan Zee;60;19 april 2025;54,8;Vrij algemeen;Nee;Standvogel
+22.;Nijlgans;Parnassia, Kennemerduinen;73;12 april 2025;54,8;Vrij algemeen;Nee;Standvogel
+45.;Nonnetje;Castricum aan Zee (zeetrek);1;11 januari 2025;1,4;Zeer zeldzaam;Nee;Dagvlieger
+45.;Nonnetje;Castricum aan Zee (zeetrek);2;22 januari 2025;1,4;Zeer zeldzaam;Nee;Dagvlieger
+45.;Nonnetje;Dordtse Biesbosch;1;12 februari 2025;1,4;Zeer zeldzaam;Nee;Dagvlieger
+45.;Nonnetje;Dordtse Biesbosch;2;9 februari 2025;1,4;Zeer zeldzaam;Nee;Dagvlieger
+45.;Nonnetje;IJmeerdijk, Almere;1;10 februari 2025;1,4;Zeer zeldzaam;Nee;Dagvlieger
+254.;Noordse Kwikstaart;Berkheide (Katwijk);12;13 mei 2025;53,8;Vrij algemeen;Ja;Zangvogel, nachttrekker
+254.;Noordse Kwikstaart;Maashorst - Hofmans Plassen;17;10 mei 2025;53,8;Vrij algemeen;Ja;Zangvogel, nachttrekker
+254.;Noordse Kwikstaart;Berkheide (Katwijk);17;11 mei 2025;53,8;Vrij algemeen;Ja;Zangvogel, nachttrekker
+254.;Noordse Kwikstaart;Heidestein (bij Zeist);35;13 mei 2025;53,8;Vrij algemeen;Ja;Zangvogel, nachttrekker
+254.;Noordse Kwikstaart;Maashorst - Hofmans Plassen;188;11 mei 2025;53,8;Vrij algemeen;Ja;Zangvogel, nachttrekker
+110.;Noordse Stern;Egmond aan Zee;42;26 april 2025;91,0;Vrij algemeen;Nee;Dagvlieger
+110.;Noordse Stern;IJmuiden aan Zee;44;12 mei 2025;91,0;Vrij algemeen;Nee;Dagvlieger
+110.;Noordse Stern;IJmuiden aan Zee;57;11 mei 2025;91,0;Vrij algemeen;Nee;Dagvlieger
+110.;Noordse Stern;Bloemendaal aan Zee;95;13 mei 2025;91,0;Vrij algemeen;Nee;Dagvlieger
+110.;Noordse Stern;Parnassia, Kennemerduinen;217;3 mei 2025;91,0;Vrij algemeen;Nee;Dagvlieger
+111.;Noordse Stern/Visdief;Parnassia, Kennemerduinen;1.492;3 mei 2025;1961,6;Algemeen;Nee;Dagvlieger
+111.;Noordse Stern/Visdief;Bloemendaal aan Zee;1.722;8 mei 2025;1961,6;Algemeen;Nee;Dagvlieger
+111.;Noordse Stern/Visdief;Parnassia, Kennemerduinen;2.111;9 mei 2025;1961,6;Algemeen;Nee;Dagvlieger
+111.;Noordse Stern/Visdief;Egmond aan Zee;2.215;3 mei 2025;1961,6;Algemeen;Nee;Dagvlieger
+111.;Noordse Stern/Visdief;Castricum aan Zee (zeetrek);2.268;3 mei 2025;1961,6;Algemeen;Nee;Dagvlieger
+135.;Noordse Stormvogel;Berkheide (Katwijk);1;10 mei 2025;1,0;Zeer zeldzaam;Nee;Dagvlieger op zee
+135.;Noordse Stormvogel;Bloemendaal aan Zee;1;3 januari 2025;1,0;Zeer zeldzaam;Nee;Dagvlieger op zee
+135.;Noordse Stormvogel;Bloemendaal aan Zee;1;3 april 2025;1,0;Zeer zeldzaam;Nee;Dagvlieger op zee
+135.;Noordse Stormvogel;Paal 19, Texel;1;4 januari 2025;1,0;Zeer zeldzaam;Nee;Dagvlieger op zee
+135.;Noordse Stormvogel;Paal 19, Texel;1;8 januari 2025;1,0;Zeer zeldzaam;Nee;Dagvlieger op zee
+86.;Oeverloper;Parnassia, Kennemerduinen;15;1 mei 2025;23,4;Vrij algemeen;Ja;Steltloper, nachttrekker
+86.;Oeverloper;IJmeerdijk, Almere;15;12 mei 2025;23,4;Vrij algemeen;Ja;Steltloper, nachttrekker
+86.;Oeverloper;Parnassia, Kennemerduinen;23;12 mei 2025;23,4;Vrij algemeen;Ja;Steltloper, nachttrekker
+86.;Oeverloper;Maashorst - Hofmans Plassen;25;3 mei 2025;23,4;Vrij algemeen;Ja;Steltloper, nachttrekker
+86.;Oeverloper;IJmuiden aan Zee;39;30 april 2025;23,4;Vrij algemeen;Ja;Steltloper, nachttrekker
+266.;Oeverpieper;Berkheide (Katwijk);3;21 maart 2025;2,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+266.;Oeverpieper;Castricum aan Zee (zeetrek);1;1 maart 2025;2,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+266.;Oeverpieper;Castricum aan Zee (zeetrek);3;5 april 2025;2,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+266.;Oeverpieper;IJmuiden aan Zee;1;2 januari 2025;2,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+266.;Oeverpieper;IJmuiden aan Zee;4;8 maart 2025;2,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+203.;Oeverzwaluw;Berkheide (Katwijk);108;4 april 2025;160,6;Algemeen;Nee;Dagvlieger
+203.;Oeverzwaluw;Berkheide (Katwijk);134;12 april 2025;160,6;Algemeen;Nee;Dagvlieger
+203.;Oeverzwaluw;Landje van Geijsel;142;6 april 2025;160,6;Algemeen;Nee;Dagvlieger
+203.;Oeverzwaluw;Berkheide (Katwijk);204;27 april 2025;160,6;Algemeen;Nee;Dagvlieger
+203.;Oeverzwaluw;IJmeerdijk, Almere;215;9 april 2025;160,6;Algemeen;Nee;Dagvlieger
+137.;Ooievaar;Maashorst - Hofmans Plassen;23;5 april 2025;37,8;Vrij algemeen;Nee;Dagvlieger, thermiekvlieger
+137.;Ooievaar;Maashorst - Hofmans Plassen;24;6 april 2025;37,8;Vrij algemeen;Nee;Dagvlieger, thermiekvlieger
+137.;Ooievaar;Heidestein (bij Zeist);34;21 april 2025;37,8;Vrij algemeen;Nee;Dagvlieger, thermiekvlieger
+137.;Ooievaar;Heidestein (bij Zeist);38;4 april 2025;37,8;Vrij algemeen;Nee;Dagvlieger, thermiekvlieger
+137.;Ooievaar;Heidestein (bij Zeist);70;21 februari 2025;37,8;Vrij algemeen;Nee;Dagvlieger, thermiekvlieger
+246.;Paapje;Berkheide (Katwijk);1;1 mei 2025;1,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+246.;Paapje;Berkheide (Katwijk);1;9 mei 2025;1,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+246.;Paapje;Heidestein (bij Zeist);1;30 april 2025;1,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+246.;Paapje;Heidestein (bij Zeist);1;2 mei 2025;1,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+246.;Paapje;Heidestein (bij Zeist);4;1 mei 2025;1,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+102.;Paarse Strandloper;Bloemendaal aan Zee;1;17 maart 2025;1,4;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+102.;Paarse Strandloper;Castricum aan Zee (zeetrek);1;4 april 2025;1,4;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+102.;Paarse Strandloper;Castricum aan Zee (zeetrek);1;8 april 2025;1,4;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+102.;Paarse Strandloper;Parnassia, Kennemerduinen;1;7 april 2025;1,4;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+102.;Paarse Strandloper;Parnassia, Kennemerduinen;3;4 april 2025;1,4;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+133.;Parelduiker;Bloemendaal aan Zee;2;11 maart 2025;2,6;Zeer zeldzaam;Nee;Dagvlieger
+133.;Parelduiker;Bloemendaal aan Zee;4;23 maart 2025;2,6;Zeer zeldzaam;Nee;Dagvlieger
+133.;Parelduiker;Castricum aan Zee (zeetrek);2;26 maart 2025;2,6;Zeer zeldzaam;Nee;Dagvlieger
+133.;Parelduiker;Egmond aan Zee;3;23 maart 2025;2,6;Zeer zeldzaam;Nee;Dagvlieger
+133.;Parelduiker;Paal 19, Texel;2;11 maart 2025;2,6;Zeer zeldzaam;Nee;Dagvlieger
+31.;Pijlstaart;IJmuiden aan Zee;54;8 maart 2025;107,4;Algemeen;Nee;Dagvlieger
+31.;Pijlstaart;Bloemendaal aan Zee;54;5 april 2025;107,4;Algemeen;Nee;Dagvlieger
+31.;Pijlstaart;Parnassia, Kennemerduinen;55;9 maart 2025;107,4;Algemeen;Nee;Dagvlieger
+31.;Pijlstaart;Egmond aan Zee;63;15 februari 2025;107,4;Algemeen;Nee;Dagvlieger
+31.;Pijlstaart;Bloemendaal aan Zee;311;10 maart 2025;107,4;Algemeen;Nee;Dagvlieger
+196.;Pimpelmees;Heidestein (bij Zeist);6;10 januari 2025;6,4;Zeldzaam;Nee;Standvogel
+196.;Pimpelmees;Waverhoek;6;3 februari 2025;6,4;Zeldzaam;Nee;Standvogel
+196.;Pimpelmees;Vijfhoek Diemen;6;25 februari 2025;6,4;Zeldzaam;Nee;Standvogel
+196.;Pimpelmees;Vijfhoek Diemen;6;21 maart 2025;6,4;Zeldzaam;Nee;Standvogel
+196.;Pimpelmees;Vijfhoek Diemen;8;8 maart 2025;6,4;Zeldzaam;Nee;Standvogel
+120.;Pontische Meeuw;IJmeerdijk, Almere;18;23 februari 2025;23,0;Vrij algemeen;Nee;Dagvlieger
+120.;Pontische Meeuw;IJmeerdijk, Almere;19;14 maart 2025;23,0;Vrij algemeen;Nee;Dagvlieger
+120.;Pontische Meeuw;IJmeerdijk, Almere;21;9 maart 2025;23,0;Vrij algemeen;Nee;Dagvlieger
+120.;Pontische Meeuw;IJmeerdijk, Almere;21;15 maart 2025;23,0;Vrij algemeen;Nee;Dagvlieger
+120.;Pontische Meeuw;IJmeerdijk, Almere;36;5 april 2025;23,0;Vrij algemeen;Nee;Dagvlieger
+148.;Purperreiger;Heidestein (bij Zeist);8;13 april 2025;4,8;Zeer zeldzaam;Ja;Trekt 's nachts
+148.;Purperreiger;Parnassia, Kennemerduinen;4;1 mei 2025;4,8;Zeer zeldzaam;Ja;Trekt 's nachts
+148.;Purperreiger;Vijfhoek Diemen;5;10 mei 2025;4,8;Zeer zeldzaam;Ja;Trekt 's nachts
+148.;Purperreiger;Waverhoek;3;14 april 2025;4,8;Zeer zeldzaam;Ja;Trekt 's nachts
+148.;Purperreiger;Waverhoek;4;7 april 2025;4,8;Zeer zeldzaam;Ja;Trekt 's nachts
+279.;Putter;Berkheide (Katwijk);19;19 maart 2025;31,6;Vrij algemeen;Ja;Zangvogel, nachttrekker
+279.;Putter;Landje van Geijsel;24;25 februari 2025;31,6;Vrij algemeen;Ja;Zangvogel, nachttrekker
+279.;Putter;Berkheide (Katwijk);24;8 maart 2025;31,6;Vrij algemeen;Ja;Zangvogel, nachttrekker
+279.;Putter;IJmeerdijk, Almere;32;3 februari 2025;31,6;Vrij algemeen;Ja;Zangvogel, nachttrekker
+279.;Putter;Vijfhoek Diemen;59;25 februari 2025;31,6;Vrij algemeen;Ja;Zangvogel, nachttrekker
+193.;Raaf;Heidestein (bij Zeist);3;4 april 2025;4,0;Zeer zeldzaam;Nee;Dagvlieger
+193.;Raaf;Heidestein (bij Zeist);4;19 februari 2025;4,0;Zeer zeldzaam;Nee;Dagvlieger
+193.;Raaf;Heidestein (bij Zeist);6;20 mei 2025;4,0;Zeer zeldzaam;Nee;Dagvlieger
+193.;Raaf;IJmeerdijk, Almere;3;9 februari 2025;4,0;Zeer zeldzaam;Nee;Dagvlieger
+193.;Raaf;Maashorst - Hofmans Plassen;4;1 april 2025;4,0;Zeer zeldzaam;Nee;Dagvlieger
+168.;Ransuil;Heidestein (bij Zeist);1;18 februari 2025;1,0;Zeer zeldzaam;Ja;Nachtactief, nachttrekker
+78.;Regenwulp;Berkheide (Katwijk);82;12 april 2025;110,0;Algemeen;Ja;Steltloper, nachttrekker
+78.;Regenwulp;IJmuiden aan Zee;96;28 april 2025;110,0;Algemeen;Ja;Steltloper, nachttrekker
+78.;Regenwulp;Parnassia, Kennemerduinen;105;6 april 2025;110,0;Algemeen;Ja;Steltloper, nachttrekker
+78.;Regenwulp;Bloemendaal aan Zee;107;5 april 2025;110,0;Algemeen;Ja;Steltloper, nachttrekker
+78.;Regenwulp;IJmuiden aan Zee;160;22 april 2025;110,0;Algemeen;Ja;Steltloper, nachttrekker
+107.;Reuzenstern;Berkheide (Katwijk);4;12 april 2025;1,8;Zeer zeldzaam;Nee;Dagvlieger
+107.;Reuzenstern;IJmeerdijk, Almere;1;29 april 2025;1,8;Zeer zeldzaam;Nee;Dagvlieger
+107.;Reuzenstern;Parnassia, Kennemerduinen;1;8 april 2025;1,8;Zeer zeldzaam;Nee;Dagvlieger
+107.;Reuzenstern;Parnassia, Kennemerduinen;2;11 mei 2025;1,8;Zeer zeldzaam;Nee;Dagvlieger
+107.;Reuzenstern;Vijfhoek Diemen;1;15 april 2025;1,8;Zeer zeldzaam;Nee;Dagvlieger
+284.;Rietgors;Heidestein (bij Zeist);13;21 maart 2025;17,0;Zeldzaam;Ja;Zangvogel, nachttrekker
+284.;Rietgors;Berkheide (Katwijk);14;8 maart 2025;17,0;Zeldzaam;Ja;Zangvogel, nachttrekker
+284.;Rietgors;Heidestein (bij Zeist);15;8 maart 2025;17,0;Zeldzaam;Ja;Zangvogel, nachttrekker
+284.;Rietgors;Heidestein (bij Zeist);17;18 maart 2025;17,0;Zeldzaam;Ja;Zangvogel, nachttrekker
+284.;Rietgors;Dordtse Biesbosch;26;21 maart 2025;17,0;Zeldzaam;Ja;Zangvogel, nachttrekker
+215.;Rietzanger;Dordtse Biesbosch;1;1 april 2025;1,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+215.;Rietzanger;Landje van Geijsel;1;6 april 2025;1,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+215.;Rietzanger;Maashorst - Hofmans Plassen;1;28 april 2025;1,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+215.;Rietzanger;Waverhoek;1;7 april 2025;1,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+215.;Rietzanger;Waverhoek;2;12 april 2025;1,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+249.;Ringmus;Landje van Geijsel;2;21 maart 2025;2,8;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+249.;Ringmus;Landje van Geijsel;3;21 februari 2025;2,8;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+249.;Ringmus;Landje van Geijsel;3;2 maart 2025;2,8;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+249.;Ringmus;Landje van Geijsel;3;6 maart 2025;2,8;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+249.;Ringmus;Landje van Geijsel;3;8 maart 2025;2,8;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+162.;Rode Wouw;Dordtse Biesbosch;2;3 april 2025;2,4;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+162.;Rode Wouw;Heidestein (bij Zeist);2;3 april 2025;2,4;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+162.;Rode Wouw;Maashorst - Hofmans Plassen;2;20 april 2025;2,4;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+162.;Rode Wouw;Maashorst - Hofmans Plassen;3;7 april 2025;2,4;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+162.;Rode Wouw;Maashorst - Hofmans Plassen;3;8 mei 2025;2,4;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+190.;Roek;Berkheide (Katwijk);3;12 april 2025;4,6;Zeer zeldzaam;Nee;Dagvlieger
+190.;Roek;Berkheide (Katwijk);3;15 april 2025;4,6;Zeer zeldzaam;Nee;Dagvlieger
+190.;Roek;Dordtse Biesbosch;2;1 april 2025;4,6;Zeer zeldzaam;Nee;Dagvlieger
+190.;Roek;Dordtse Biesbosch;13;8 maart 2025;4,6;Zeer zeldzaam;Nee;Dagvlieger
+190.;Roek;Parnassia, Kennemerduinen;2;21 maart 2025;4,6;Zeer zeldzaam;Nee;Dagvlieger
+142.;Roerdomp;Berkheide (Katwijk);2;26 april 2025;1,8;Zeer zeldzaam;Ja;Nachtactief, nachttrekker
+142.;Roerdomp;Berkheide (Katwijk);2;13 mei 2025;1,8;Zeer zeldzaam;Ja;Nachtactief, nachttrekker
+142.;Roerdomp;Waverhoek;1;26 februari 2025;1,8;Zeer zeldzaam;Ja;Nachtactief, nachttrekker
+142.;Roerdomp;Waverhoek;1;6 maart 2025;1,8;Zeer zeldzaam;Ja;Nachtactief, nachttrekker
+142.;Roerdomp;Waverhoek;3;12 april 2025;1,8;Zeer zeldzaam;Ja;Nachtactief, nachttrekker
+239.;Roodborst;Berkheide (Katwijk);1;25 februari 2025;1,8;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+239.;Roodborst;Berkheide (Katwijk);1;18 maart 2025;1,8;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+239.;Roodborst;Berkheide (Katwijk);2;17 maart 2025;1,8;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+239.;Roodborst;IJmuiden aan Zee;2;12 april 2025;1,8;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+239.;Roodborst;IJmuiden aan Zee;3;22 maart 2025;1,8;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+247.;Roodborsttapuit;Berkheide (Katwijk);5;26 april 2025;6,6;Zeldzaam;Ja;Zangvogel, nachttrekker
+247.;Roodborsttapuit;Berkheide (Katwijk);6;9 maart 2025;6,6;Zeldzaam;Ja;Zangvogel, nachttrekker
+247.;Roodborsttapuit;Berkheide (Katwijk);6;3 april 2025;6,6;Zeldzaam;Ja;Zangvogel, nachttrekker
+247.;Roodborsttapuit;Berkheide (Katwijk);8;8 maart 2025;6,6;Zeldzaam;Ja;Zangvogel, nachttrekker
+247.;Roodborsttapuit;Berkheide (Katwijk);8;27 maart 2025;6,6;Zeldzaam;Ja;Zangvogel, nachttrekker
+63.;Roodhalsfuut;Castricum aan Zee (zeetrek);1;22 januari 2025;1,2;Zeer zeldzaam;Ja;Trekt 's nachts
+63.;Roodhalsfuut;Castricum aan Zee (zeetrek);1;15 februari 2025;1,2;Zeer zeldzaam;Ja;Trekt 's nachts
+63.;Roodhalsfuut;Egmond aan Zee;2;15 april 2025;1,2;Zeer zeldzaam;Ja;Trekt 's nachts
+63.;Roodhalsfuut;Paal 19, Texel;1;2 januari 2025;1,2;Zeer zeldzaam;Ja;Trekt 's nachts
+63.;Roodhalsfuut;Paal 19, Texel;1;5 februari 2025;1,2;Zeer zeldzaam;Ja;Trekt 's nachts
+132.;Roodkeelduiker;Egmond aan Zee;73;31 januari 2025;268,4;Algemeen;Nee;Dagvlieger
+132.;Roodkeelduiker;Egmond aan Zee;74;23 januari 2025;268,4;Algemeen;Nee;Dagvlieger
+132.;Roodkeelduiker;Paal 19, Texel;105;4 januari 2025;268,4;Algemeen;Nee;Dagvlieger
+132.;Roodkeelduiker;Castricum aan Zee (zeetrek);132;22 januari 2025;268,4;Algemeen;Nee;Dagvlieger
+132.;Roodkeelduiker;Paal 19, Texel;958;2 januari 2025;268,4;Algemeen;Nee;Dagvlieger
+264.;Roodkeelpieper;Parnassia, Kennemerduinen;1;27 april 2025;1,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+180.;Roodpootvalk;Anna's Berg (Hilversum);1;10 mei 2025;1,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+206.;Roodstuitzwaluw;Berkheide (Katwijk);1;20 mei 2025;1,0;Zeer zeldzaam;Nee;Dagvlieger
+80.;Rosse Grutto;Bloemendaal aan Zee;241;5 mei 2025;599,8;Algemeen;Ja;Steltloper, nachttrekker
+80.;Rosse Grutto;Egmond aan Zee;280;25 april 2025;599,8;Algemeen;Ja;Steltloper, nachttrekker
+80.;Rosse Grutto;Egmond aan Zee;345;22 april 2025;599,8;Algemeen;Ja;Steltloper, nachttrekker
+80.;Rosse Grutto;Castricum aan Zee (zeetrek);378;21 april 2025;599,8;Algemeen;Ja;Steltloper, nachttrekker
+80.;Rosse Grutto;IJmuiden aan Zee;1.755;22 april 2025;599,8;Algemeen;Ja;Steltloper, nachttrekker
+2.;Rotgans;Egmond aan Zee;521;12 mei 2025;731,6;Algemeen;Nee;Dagvlieger
+2.;Rotgans;Parnassia, Kennemerduinen;650;12 mei 2025;731,6;Algemeen;Nee;Dagvlieger
+2.;Rotgans;Bloemendaal aan Zee;771;30 maart 2025;731,6;Algemeen;Nee;Dagvlieger
+2.;Rotgans;Castricum aan Zee (zeetrek);825;21 mei 2025;731,6;Algemeen;Nee;Dagvlieger
+2.;Rotgans;Egmond aan Zee;891;2 mei 2025;731,6;Algemeen;Nee;Dagvlieger
+260.;Rouwkwikstaart;Berkheide (Katwijk);1;9 maart 2025;2,8;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+260.;Rouwkwikstaart;Berkheide (Katwijk);2;22 maart 2025;2,8;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+260.;Rouwkwikstaart;Berkheide (Katwijk);4;21 maart 2025;2,8;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+260.;Rouwkwikstaart;Berkheide (Katwijk);6;8 maart 2025;2,8;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+260.;Rouwkwikstaart;IJmuiden aan Zee;1;8 maart 2025;2,8;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+69.;Scholekster;Castricum aan Zee (zeetrek);75;11 mei 2025;101,0;Algemeen;Nee;Dagvlieger
+69.;Scholekster;Castricum aan Zee (zeetrek);89;10 mei 2025;101,0;Algemeen;Nee;Dagvlieger
+69.;Scholekster;Egmond aan Zee;97;11 mei 2025;101,0;Algemeen;Nee;Dagvlieger
+69.;Scholekster;Parnassia, Kennemerduinen;102;11 mei 2025;101,0;Algemeen;Nee;Dagvlieger
+69.;Scholekster;Parnassia, Kennemerduinen;142;12 mei 2025;101,0;Algemeen;Nee;Dagvlieger
+281.;Sijs;Heidestein (bij Zeist);19;16 februari 2025;23,8;Vrij algemeen;Ja;Zangvogel, nachttrekker
+281.;Sijs;Dordtse Biesbosch;21;21 maart 2025;23,8;Vrij algemeen;Ja;Zangvogel, nachttrekker
+281.;Sijs;IJmeerdijk, Almere;21;14 juni 2025;23,8;Vrij algemeen;Ja;Zangvogel, nachttrekker
+281.;Sijs;Heidestein (bij Zeist);24;14 januari 2025;23,8;Vrij algemeen;Ja;Zangvogel, nachttrekker
+281.;Sijs;Heidestein (bij Zeist);34;21 februari 2025;23,8;Vrij algemeen;Ja;Zangvogel, nachttrekker
+183.;Slechtvalk;Dordtse Biesbosch;2;4 april 2025;2,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+183.;Slechtvalk;Heidestein (bij Zeist);2;7 maart 2025;2,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+183.;Slechtvalk;Landje van Geijsel;2;21 maart 2025;2,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+183.;Slechtvalk;Parnassia, Kennemerduinen;2;9 maart 2025;2,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+183.;Slechtvalk;Vijfhoek Diemen;2;23 maart 2025;2,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+27.;Slobeend;Parnassia, Kennemerduinen;317;12 april 2025;468,0;Algemeen;Nee;Dagvlieger
+27.;Slobeend;Bloemendaal aan Zee;332;8 maart 2025;468,0;Algemeen;Nee;Dagvlieger
+27.;Slobeend;Castricum aan Zee (zeetrek);357;4 april 2025;468,0;Algemeen;Nee;Dagvlieger
+27.;Slobeend;Parnassia, Kennemerduinen;525;4 april 2025;468,0;Algemeen;Nee;Dagvlieger
+27.;Slobeend;Bloemendaal aan Zee;809;3 april 2025;468,0;Algemeen;Nee;Dagvlieger
+181.;Smelleken;Berkheide (Katwijk);5;4 april 2025;3,2;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+181.;Smelleken;Castricum aan Zee (zeetrek);2;4 april 2025;3,2;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+181.;Smelleken;Dordtse Biesbosch;4;4 april 2025;3,2;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+181.;Smelleken;Maashorst - Hofmans Plassen;2;5 april 2025;3,2;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+181.;Smelleken;Maashorst - Hofmans Plassen;3;7 april 2025;3,2;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+29.;Smient;Waverhoek;2.640;18 maart 2025;6416,2;Algemeen;Nee;Dagvlieger
+29.;Smient;Vijfhoek Diemen;2.668;8 maart 2025;6416,2;Algemeen;Nee;Dagvlieger
+29.;Smient;Vijfhoek Diemen;3.332;7 maart 2025;6416,2;Algemeen;Nee;Dagvlieger
+29.;Smient;Waverhoek;8.441;8 maart 2025;6416,2;Algemeen;Nee;Dagvlieger
+29.;Smient;Landje van Geijsel;15.000;6 maart 2025;6416,2;Algemeen;Nee;Dagvlieger
+9.;Sneeuwgans;IJmeerdijk, Almere;2;8 mei 2025;2,0;Zeer zeldzaam;Nee;Dagvlieger
+282.;Sneeuwgors;Castricum aan Zee (zeetrek);1;11 januari 2025;1,0;Zeer zeldzaam;Ja;Nachttrekker
+282.;Sneeuwgors;Castricum aan Zee (zeetrek);1;9 maart 2025;1,0;Zeer zeldzaam;Ja;Nachttrekker
+282.;Sneeuwgors;IJmuiden aan Zee;1;1 februari 2025;1,0;Zeer zeldzaam;Ja;Nachttrekker
+282.;Sneeuwgors;Parnassia, Kennemerduinen;1;9 maart 2025;1,0;Zeer zeldzaam;Ja;Nachttrekker
+219.;Snor;Waverhoek;1;22 maart 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+219.;Snor;Waverhoek;1;25 maart 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+219.;Snor;Waverhoek;1;29 maart 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+219.;Snor;Waverhoek;2;2 april 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+219.;Snor;Waverhoek;2;13 mei 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+152.;Sperwer;Landje van Geijsel;7;21 maart 2025;7,8;Zeldzaam;Nee;Roofvogel, dagvlieger
+152.;Sperwer;Landje van Geijsel;7;23 maart 2025;7,8;Zeldzaam;Nee;Roofvogel, dagvlieger
+152.;Sperwer;Heidestein (bij Zeist);8;23 maart 2025;7,8;Zeldzaam;Nee;Roofvogel, dagvlieger
+152.;Sperwer;Berkheide (Katwijk);8;4 april 2025;7,8;Zeldzaam;Nee;Roofvogel, dagvlieger
+152.;Sperwer;Maashorst - Hofmans Plassen;9;4 april 2025;7,8;Zeldzaam;Nee;Roofvogel, dagvlieger
+154.;Sperwer/Havik;Landje van Geijsel;1;2 maart 2025;1,0;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+218.;Spotvogel;Dordtse Biesbosch;1;10 mei 2025;1,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+218.;Spotvogel;Parnassia, Kennemerduinen;1;12 mei 2025;1,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+230.;Spreeuw;Diemerpark;5.221;23 maart 2025;17880,4;Algemeen;Ja;Deels nachttrekker
+230.;Spreeuw;Waverhoek;6.701;3 februari 2025;17880,4;Algemeen;Ja;Deels nachttrekker
+230.;Spreeuw;Waverhoek;10.017;6 maart 2025;17880,4;Algemeen;Ja;Deels nachttrekker
+230.;Spreeuw;Waverhoek;11.508;21 maart 2025;17880,4;Algemeen;Ja;Deels nachttrekker
+230.;Spreeuw;Vijfhoek Diemen;55.955;21 maart 2025;17880,4;Algemeen;Ja;Deels nachttrekker
+220.;Sprinkhaanzanger;Berkheide (Katwijk);2;23 april 2025;2,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+220.;Sprinkhaanzanger;Berkheide (Katwijk);2;27 april 2025;2,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+220.;Sprinkhaanzanger;Berkheide (Katwijk);3;26 april 2025;2,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+220.;Sprinkhaanzanger;Parnassia, Kennemerduinen;2;19 april 2025;2,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+220.;Sprinkhaanzanger;Parnassia, Kennemerduinen;2;23 april 2025;2,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+209.;Staartmees;Vijfhoek Diemen;5;10 mei 2025;8,2;Zeldzaam;Nee;Standvogel
+209.;Staartmees;Vijfhoek Diemen;6;21 februari 2025;8,2;Zeldzaam;Nee;Standvogel
+209.;Staartmees;Vijfhoek Diemen;6;8 maart 2025;8,2;Zeldzaam;Nee;Standvogel
+209.;Staartmees;Vijfhoek Diemen;9;9 februari 2025;8,2;Zeldzaam;Nee;Standvogel
+209.;Staartmees;Dordtse Biesbosch;15;15 februari 2025;8,2;Zeldzaam;Nee;Standvogel
+52.;Stadsduif;Meijendel (Wassenaar);1;12 mei 2025;11,0;Zeldzaam;Nee;Standvogel
+52.;Stadsduif;Meijendel (Wassenaar);1;19 mei 2025;11,0;Zeldzaam;Nee;Standvogel
+52.;Stadsduif;Meijendel (Wassenaar);31;11 mei 2025;11,0;Zeldzaam;Nee;Standvogel
+92.;Steenloper;IJmuiden aan Zee;10;4 januari 2025;35,6;Vrij algemeen;Ja;Steltloper, nachttrekker
+92.;Steenloper;IJmuiden aan Zee;20;8 maart 2025;35,6;Vrij algemeen;Ja;Steltloper, nachttrekker
+92.;Steenloper;Bloemendaal aan Zee;26;5 mei 2025;35,6;Vrij algemeen;Ja;Steltloper, nachttrekker
+92.;Steenloper;Castricum aan Zee (zeetrek);53;5 mei 2025;35,6;Vrij algemeen;Ja;Steltloper, nachttrekker
+92.;Steenloper;IJmuiden aan Zee;69;5 mei 2025;35,6;Vrij algemeen;Ja;Steltloper, nachttrekker
+157.;Steppekiekendief;Heidestein (bij Zeist);1;15 april 2025;1,3;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+157.;Steppekiekendief;IJmeerdijk, Almere;1;11 april 2025;1,3;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+157.;Steppekiekendief;Maashorst - Hofmans Plassen;2;13 april 2025;1,3;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+119.;Stormmeeuw;Parnassia, Kennemerduinen;926;21 maart 2025;1289,4;Algemeen;Nee;Dagvlieger
+119.;Stormmeeuw;Bloemendaal aan Zee;1.109;11 april 2025;1289,4;Algemeen;Nee;Dagvlieger
+119.;Stormmeeuw;Berkheide (Katwijk);1.123;8 april 2025;1289,4;Algemeen;Nee;Dagvlieger
+119.;Stormmeeuw;Egmond aan Zee;1.152;25 maart 2025;1289,4;Algemeen;Nee;Dagvlieger
+119.;Stormmeeuw;Bloemendaal aan Zee;2.137;30 maart 2025;1289,4;Algemeen;Nee;Dagvlieger
+202.;Strandleeuwerik;Parnassia, Kennemerduinen;1;9 maart 2025;1,0;Zeer zeldzaam;Ja;Nachttrekker
+77.;Strandplevier;Bloemendaal aan Zee;1;14 mei 2025;1,4;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+77.;Strandplevier;Castricum aan Zee (zeetrek);2;6 april 2025;1,4;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+77.;Strandplevier;IJmuiden aan Zee;1;4 april 2025;1,4;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+77.;Strandplevier;IJmuiden aan Zee;2;5 april 2025;1,4;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+77.;Strandplevier;Parnassia, Kennemerduinen;1;9 mei 2025;1,4;Zeer zeldzaam;Ja;Steltloper, nachttrekker
+36.;Tafeleend;IJmeerdijk, Almere;7;12 mei 2025;14,8;Zeldzaam;Nee;Dagvlieger
+36.;Tafeleend;IJmeerdijk, Almere;8;28 april 2025;14,8;Zeldzaam;Nee;Dagvlieger
+36.;Tafeleend;IJmuiden aan Zee;9;15 maart 2025;14,8;Zeldzaam;Nee;Dagvlieger
+36.;Tafeleend;Bloemendaal aan Zee;10;28 februari 2025;14,8;Zeldzaam;Nee;Dagvlieger
+36.;Tafeleend;IJmeerdijk, Almere;40;1 maart 2025;14,8;Zeldzaam;Nee;Dagvlieger
+248.;Tapuit;Berkheide (Katwijk);5;30 april 2025;7,2;Zeldzaam;Ja;Zangvogel, nachttrekker
+248.;Tapuit;IJmuiden aan Zee;6;30 april 2025;7,2;Zeldzaam;Ja;Zangvogel, nachttrekker
+248.;Tapuit;IJmuiden aan Zee;7;10 mei 2025;7,2;Zeldzaam;Ja;Zangvogel, nachttrekker
+248.;Tapuit;Berkheide (Katwijk);9;1 mei 2025;7,2;Zeldzaam;Ja;Zangvogel, nachttrekker
+248.;Tapuit;Berkheide (Katwijk);9;13 mei 2025;7,2;Zeldzaam;Ja;Zangvogel, nachttrekker
+99.;Temmincks Strandloper;Castricum aan Zee (zeetrek);1;11 mei 2025;6,5;Zeldzaam;Ja;Steltloper, nachttrekker
+99.;Temmincks Strandloper;Landje van Geijsel;12;2 mei 2025;6,5;Zeldzaam;Ja;Steltloper, nachttrekker
+212.;Tjiftjaf;Vijfhoek Diemen;5;20 maart 2025;6,8;Zeldzaam;Ja;Zangvogel, nachttrekker
+212.;Tjiftjaf;Dordtse Biesbosch;6;20 maart 2025;6,8;Zeldzaam;Ja;Zangvogel, nachttrekker
+212.;Tjiftjaf;Dordtse Biesbosch;6;25 maart 2025;6,8;Zeldzaam;Ja;Zangvogel, nachttrekker
+212.;Tjiftjaf;Diemerpark;8;22 maart 2025;6,8;Zeldzaam;Ja;Zangvogel, nachttrekker
+212.;Tjiftjaf;Berkheide (Katwijk);9;21 maart 2025;6,8;Zeldzaam;Ja;Zangvogel, nachttrekker
+213.;Tjiftjaf/Fitis;Berkheide (Katwijk);3;1 april 2025;3,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+213.;Tjiftjaf/Fitis;Berkheide (Katwijk);3;6 april 2025;3,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+213.;Tjiftjaf/Fitis;Berkheide (Katwijk);4;7 april 2025;3,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+213.;Tjiftjaf/Fitis;Berkheide (Katwijk);5;8 april 2025;3,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+213.;Tjiftjaf/Fitis;Heidestein (bij Zeist);3;12 april 2025;3,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+16.;Toendrarietgans;Dordtse Biesbosch;110;9 februari 2025;165,8;Algemeen;Nee;Dagvlieger
+16.;Toendrarietgans;Dordtse Biesbosch;114;15 februari 2025;165,8;Algemeen;Nee;Dagvlieger
+16.;Toendrarietgans;Dordtse Biesbosch;183;20 februari 2025;165,8;Algemeen;Nee;Dagvlieger
+16.;Toendrarietgans;Dordtse Biesbosch;200;31 januari 2025;165,8;Algemeen;Nee;Dagvlieger
+16.;Toendrarietgans;Dordtse Biesbosch;222;21 februari 2025;165,8;Algemeen;Nee;Dagvlieger
+38.;Topper;Bloemendaal aan Zee;3;28 februari 2025;4,6;Zeer zeldzaam;Nee;Dagvlieger
+38.;Topper;Bloemendaal aan Zee;4;9 maart 2025;4,6;Zeer zeldzaam;Nee;Dagvlieger
+38.;Topper;Bloemendaal aan Zee;5;14 maart 2025;4,6;Zeer zeldzaam;Nee;Dagvlieger
+38.;Topper;Castricum aan Zee (zeetrek);5;30 maart 2025;4,6;Zeer zeldzaam;Nee;Dagvlieger
+38.;Topper;Castricum aan Zee (zeetrek);6;9 maart 2025;4,6;Zeer zeldzaam;Nee;Dagvlieger
+178.;Torenvalk;Maashorst - Hofmans Plassen;13;5 april 2025;20,4;Vrij algemeen;Nee;Roofvogel, dagvlieger
+178.;Torenvalk;Berkheide (Katwijk);13;8 april 2025;20,4;Vrij algemeen;Nee;Roofvogel, dagvlieger
+178.;Torenvalk;Heidestein (bij Zeist);16;13 april 2025;20,4;Vrij algemeen;Nee;Roofvogel, dagvlieger
+178.;Torenvalk;Maashorst - Hofmans Plassen;20;6 april 2025;20,4;Vrij algemeen;Nee;Roofvogel, dagvlieger
+178.;Torenvalk;Berkheide (Katwijk);40;4 april 2025;20,4;Vrij algemeen;Nee;Roofvogel, dagvlieger
+57.;tortel spec;Heidestein (bij Zeist);1;3 mei 2025;1,0;Zeer zeldzaam;Ja;Trekt 's nachts
+222.;Tuinfluiter;Berkheide (Katwijk);1;23 april 2025;1,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+222.;Tuinfluiter;Berkheide (Katwijk);1;1 mei 2025;1,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+222.;Tuinfluiter;Dordtse Biesbosch;1;19 april 2025;1,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+222.;Tuinfluiter;Maashorst - Hofmans Plassen;1;18 april 2025;1,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+222.;Tuinfluiter;Vijfhoek Diemen;1;19 april 2025;1,0;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+89.;Tureluur;Bloemendaal aan Zee;73;5 mei 2025;164,6;Algemeen;Ja;Steltloper, nachttrekker
+89.;Tureluur;IJmuiden aan Zee;108;10 mei 2025;164,6;Algemeen;Ja;Steltloper, nachttrekker
+89.;Tureluur;IJmuiden aan Zee;164;12 mei 2025;164,6;Algemeen;Ja;Steltloper, nachttrekker
+89.;Tureluur;IJmuiden aan Zee;183;30 april 2025;164,6;Algemeen;Ja;Steltloper, nachttrekker
+89.;Tureluur;IJmuiden aan Zee;295;11 mei 2025;164,6;Algemeen;Ja;Steltloper, nachttrekker
+56.;Turkse Tortel;Berkheide (Katwijk);4;9 mei 2025;4,0;Zeer zeldzaam;Nee;Standvogel/dagvlieger
+56.;Turkse Tortel;Berkheide (Katwijk);5;30 april 2025;4,0;Zeer zeldzaam;Nee;Standvogel/dagvlieger
+56.;Turkse Tortel;Berkheide (Katwijk);5;20 mei 2025;4,0;Zeer zeldzaam;Nee;Standvogel/dagvlieger
+56.;Turkse Tortel;Diemerpark;3;28 februari 2025;4,0;Zeer zeldzaam;Nee;Standvogel/dagvlieger
+56.;Turkse Tortel;Meijendel (Wassenaar);3;11 januari 2025;4,0;Zeer zeldzaam;Nee;Standvogel/dagvlieger
+151.;Vale Gier;Maashorst - Hofmans Plassen;1;18 april 2025;1,0;Zeer zeldzaam;Nee;Thermiekvlieger, dag
+201.;Veldleeuwerik;Heidestein (bij Zeist);25;18 maart 2025;152,6;Algemeen;Ja;Nachttrekker
+201.;Veldleeuwerik;Heidestein (bij Zeist);29;21 februari 2025;152,6;Algemeen;Ja;Nachttrekker
+201.;Veldleeuwerik;Waverhoek;109;8 maart 2025;152,6;Algemeen;Ja;Nachttrekker
+201.;Veldleeuwerik;IJmeerdijk, Almere;159;23 februari 2025;152,6;Algemeen;Ja;Nachttrekker
+201.;Veldleeuwerik;Landje van Geijsel;441;23 februari 2025;152,6;Algemeen;Ja;Nachttrekker
+169.;Velduil;Berkheide (Katwijk);1;20 maart 2025;1,0;Zeer zeldzaam;Nee;Schemer-/dagvlieger
+169.;Velduil;Berkheide (Katwijk);1;21 maart 2025;1,0;Zeer zeldzaam;Nee;Schemer-/dagvlieger
+169.;Velduil;Bloemendaal aan Zee;1;3 april 2025;1,0;Zeer zeldzaam;Nee;Schemer-/dagvlieger
+269.;Vink;Heidestein (bij Zeist);1.928;8 maart 2025;2747,2;Algemeen;Ja;Zangvogel, nachttrekker
+269.;Vink;Maashorst - Hofmans Plassen;2.166;23 maart 2025;2747,2;Algemeen;Ja;Zangvogel, nachttrekker
+269.;Vink;Heidestein (bij Zeist);2.180;9 maart 2025;2747,2;Algemeen;Ja;Zangvogel, nachttrekker
+269.;Vink;Maashorst - Hofmans Plassen;2.761;22 maart 2025;2747,2;Algemeen;Ja;Zangvogel, nachttrekker
+269.;Vink;Maashorst - Hofmans Plassen;4.701;10 maart 2025;2747,2;Algemeen;Ja;Zangvogel, nachttrekker
+149.;Visarend;Dordtse Biesbosch;2;22 april 2025;2,4;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+149.;Visarend;Heidestein (bij Zeist);3;4 april 2025;2,4;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+149.;Visarend;Maashorst - Hofmans Plassen;2;8 april 2025;2,4;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+149.;Visarend;Maashorst - Hofmans Plassen;2;13 april 2025;2,4;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+149.;Visarend;Maashorst - Hofmans Plassen;3;21 april 2025;2,4;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+112.;Visdief;Parnassia, Kennemerduinen;581;15 april 2025;786,0;Algemeen;Nee;Dagvlieger
+112.;Visdief;IJmuiden aan Zee;650;5 mei 2025;786,0;Algemeen;Nee;Dagvlieger
+112.;Visdief;IJmuiden aan Zee;772;19 april 2025;786,0;Algemeen;Nee;Dagvlieger
+112.;Visdief;Castricum aan Zee (zeetrek);877;21 april 2025;786,0;Algemeen;Nee;Dagvlieger
+112.;Visdief;IJmuiden aan Zee;1.050;10 mei 2025;786,0;Algemeen;Nee;Dagvlieger
+225.;Vuurgoudhaan;Berkheide (Katwijk);1;4 april 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+225.;Vuurgoudhaan;Dordtse Biesbosch;2;6 maart 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+225.;Vuurgoudhaan;Heidestein (bij Zeist);2;14 januari 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+225.;Vuurgoudhaan;IJmuiden aan Zee;1;4 april 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+225.;Vuurgoudhaan;Maashorst - Hofmans Plassen;1;26 april 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+59.;Waterhoen;Landje van Geijsel;1;25 februari 2025;1,0;Zeer zeldzaam;Ja;Trekt 's nachts
+59.;Waterhoen;Landje van Geijsel;1;6 april 2025;1,0;Zeer zeldzaam;Ja;Trekt 's nachts
+59.;Waterhoen;Maashorst - Hofmans Plassen;1;11 april 2025;1,0;Zeer zeldzaam;Ja;Trekt 's nachts
+265.;Waterpieper;Waverhoek;4;19 maart 2025;5,2;Zeldzaam;Ja;Zangvogel, nachttrekker
+265.;Waterpieper;Waverhoek;5;26 februari 2025;5,2;Zeldzaam;Ja;Zangvogel, nachttrekker
+265.;Waterpieper;Waverhoek;5;4 april 2025;5,2;Zeldzaam;Ja;Zangvogel, nachttrekker
+265.;Waterpieper;Waverhoek;6;6 maart 2025;5,2;Zeldzaam;Ja;Zangvogel, nachttrekker
+265.;Waterpieper;Waverhoek;6;8 maart 2025;5,2;Zeldzaam;Ja;Zangvogel, nachttrekker
+267.;Waterpieper/Oeverpieper;Berkheide (Katwijk);1;2 maart 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+267.;Waterpieper/Oeverpieper;Berkheide (Katwijk);2;20 maart 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+267.;Waterpieper/Oeverpieper;Bloemendaal aan Zee;1;14 maart 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+267.;Waterpieper/Oeverpieper;Parnassia, Kennemerduinen;1;9 maart 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+267.;Waterpieper/Oeverpieper;Parnassia, Kennemerduinen;2;18 maart 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+58.;Waterral;Dordtse Biesbosch;2;27 januari 2025;2,8;Zeer zeldzaam;Ja;Nachtactief, nachttrekker
+58.;Waterral;Dordtse Biesbosch;2;8 februari 2025;2,8;Zeer zeldzaam;Ja;Nachtactief, nachttrekker
+58.;Waterral;Dordtse Biesbosch;3;6 maart 2025;2,8;Zeer zeldzaam;Ja;Nachtactief, nachttrekker
+58.;Waterral;Meijendel (Wassenaar);4;11 januari 2025;2,8;Zeer zeldzaam;Ja;Nachtactief, nachttrekker
+58.;Waterral;Waverhoek;3;26 februari 2025;2,8;Zeer zeldzaam;Ja;Nachtactief, nachttrekker
+85.;Watersnip;Dordtse Biesbosch;20;14 februari 2025;38,4;Vrij algemeen;Ja;Steltloper, nachttrekker
+85.;Watersnip;Waverhoek;24;12 april 2025;38,4;Vrij algemeen;Ja;Steltloper, nachttrekker
+85.;Watersnip;Dordtse Biesbosch;27;20 maart 2025;38,4;Vrij algemeen;Ja;Steltloper, nachttrekker
+85.;Watersnip;Berkheide (Katwijk);57;4 april 2025;38,4;Vrij algemeen;Ja;Steltloper, nachttrekker
+85.;Watersnip;Vijfhoek Diemen;64;9 februari 2025;38,4;Vrij algemeen;Ja;Steltloper, nachttrekker
+150.;Wespendief;Maashorst - Hofmans Plassen;4;13 mei 2025;7,2;Zeldzaam;Nee;Roofvogel, dagvlieger
+150.;Wespendief;Dordtse Biesbosch;5;12 mei 2025;7,2;Zeldzaam;Nee;Roofvogel, dagvlieger
+150.;Wespendief;Maashorst - Hofmans Plassen;8;14 mei 2025;7,2;Zeldzaam;Nee;Roofvogel, dagvlieger
+150.;Wespendief;Maashorst - Hofmans Plassen;9;11 mei 2025;7,2;Zeldzaam;Nee;Roofvogel, dagvlieger
+150.;Wespendief;Maashorst - Hofmans Plassen;10;12 mei 2025;7,2;Zeldzaam;Nee;Roofvogel, dagvlieger
+186.;Wielewaal;Berkheide (Katwijk);2;13 mei 2025;1,8;Zeer zeldzaam;Ja;Trekt 's nachts
+186.;Wielewaal;Berkheide (Katwijk);4;11 mei 2025;1,8;Zeer zeldzaam;Ja;Trekt 's nachts
+186.;Wielewaal;Maashorst - Hofmans Plassen;1;20 april 2025;1,8;Zeer zeldzaam;Ja;Trekt 's nachts
+186.;Wielewaal;Maashorst - Hofmans Plassen;1;23 april 2025;1,8;Zeer zeldzaam;Ja;Trekt 's nachts
+186.;Wielewaal;Vijfhoek Diemen;1;1 mei 2025;1,8;Zeer zeldzaam;Ja;Trekt 's nachts
+30.;Wilde Eend;Diemerpark;11;23 maart 2025;19,2;Zeldzaam;Nee;Standvogel/dagvlieger
+30.;Wilde Eend;IJmeerdijk, Almere;13;14 juni 2025;19,2;Zeldzaam;Nee;Standvogel/dagvlieger
+30.;Wilde Eend;Diemerpark;19;22 maart 2025;19,2;Zeldzaam;Nee;Standvogel/dagvlieger
+30.;Wilde Eend;Diemerpark;21;14 mei 2025;19,2;Zeldzaam;Nee;Standvogel/dagvlieger
+30.;Wilde Eend;Diemerpark;32;9 maart 2025;19,2;Zeldzaam;Nee;Standvogel/dagvlieger
+21.;Wilde Zwaan;Dordtse Biesbosch;13;28 januari 2025;4,8;Zeer zeldzaam;Nee;Dagvlieger
+21.;Wilde Zwaan;IJmeerdijk, Almere;2;29 januari 2025;4,8;Zeer zeldzaam;Nee;Dagvlieger
+21.;Wilde Zwaan;IJmeerdijk, Almere;2;7 februari 2025;4,8;Zeer zeldzaam;Nee;Dagvlieger
+21.;Wilde Zwaan;Paal 19, Texel;2;25 januari 2025;4,8;Zeer zeldzaam;Nee;Dagvlieger
+227.;Winterkoning;Berkheide (Katwijk);1;25 februari 2025;1,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+227.;Winterkoning;Berkheide (Katwijk);2;18 maart 2025;1,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+227.;Winterkoning;IJmuiden aan Zee;1;4 januari 2025;1,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+227.;Winterkoning;IJmuiden aan Zee;2;7 maart 2025;1,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+227.;Winterkoning;IJmuiden aan Zee;2;8 maart 2025;1,6;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+32.;Wintertaling;IJmuiden aan Zee;582;8 maart 2025;703,4;Algemeen;Nee;Dagvlieger
+32.;Wintertaling;Castricum aan Zee (zeetrek);683;8 maart 2025;703,4;Algemeen;Nee;Dagvlieger
+32.;Wintertaling;Bloemendaal aan Zee;714;25 maart 2025;703,4;Algemeen;Nee;Dagvlieger
+32.;Wintertaling;Bloemendaal aan Zee;755;8 maart 2025;703,4;Algemeen;Nee;Dagvlieger
+32.;Wintertaling;Bloemendaal aan Zee;783;29 maart 2025;703,4;Algemeen;Nee;Dagvlieger
+3.;Witbuikrotgans;Bloemendaal aan Zee;1;12 maart 2025;1,0;Zeer zeldzaam;Nee;Dagvlieger
+3.;Witbuikrotgans;Castricum aan Zee (zeetrek);1;5 april 2025;1,0;Zeer zeldzaam;Nee;Dagvlieger
+3.;Witbuikrotgans;Egmond aan Zee;1;2 mei 2025;1,0;Zeer zeldzaam;Nee;Dagvlieger
+3.;Witbuikrotgans;IJmuiden aan Zee;1;5 april 2025;1,0;Zeer zeldzaam;Nee;Dagvlieger
+3.;Witbuikrotgans;Parnassia, Kennemerduinen;1;12 april 2025;1,0;Zeer zeldzaam;Nee;Dagvlieger
+87.;Witgat;Waverhoek;42;7 april 2025;58,6;Vrij algemeen;Ja;Steltloper, nachttrekker
+87.;Witgat;Berkheide (Katwijk);42;12 april 2025;58,6;Vrij algemeen;Ja;Steltloper, nachttrekker
+87.;Witgat;Dordtse Biesbosch;61;4 april 2025;58,6;Vrij algemeen;Ja;Steltloper, nachttrekker
+87.;Witgat;Berkheide (Katwijk);67;4 april 2025;58,6;Vrij algemeen;Ja;Steltloper, nachttrekker
+87.;Witgat;Dordtse Biesbosch;81;12 april 2025;58,6;Vrij algemeen;Ja;Steltloper, nachttrekker
+257.;Witte Kwikstaart;Berkheide (Katwijk);34;21 maart 2025;54,6;Vrij algemeen;Ja;Zangvogel, nachttrekker
+257.;Witte Kwikstaart;Berkheide (Katwijk);53;4 april 2025;54,6;Vrij algemeen;Ja;Zangvogel, nachttrekker
+257.;Witte Kwikstaart;Heidestein (bij Zeist);54;23 maart 2025;54,6;Vrij algemeen;Ja;Zangvogel, nachttrekker
+257.;Witte Kwikstaart;Heidestein (bij Zeist);66;21 maart 2025;54,6;Vrij algemeen;Ja;Zangvogel, nachttrekker
+257.;Witte Kwikstaart;Berkheide (Katwijk);66;22 maart 2025;54,6;Vrij algemeen;Ja;Zangvogel, nachttrekker
+109.;Witvleugelstern;Castricum aan Zee (zeetrek);2;10 mei 2025;1,3;Zeer zeldzaam;Nee;Dagvlieger
+109.;Witvleugelstern;IJmeerdijk, Almere;1;5 mei 2025;1,3;Zeer zeldzaam;Nee;Dagvlieger
+109.;Witvleugelstern;IJmuiden aan Zee;1;10 mei 2025;1,3;Zeer zeldzaam;Nee;Dagvlieger
+1.;Witwangfluiteend;Diemerpark;2;6 april 2025;2,0;Zeer zeldzaam;Nee;Dagvlieger
+79.;Wulp;Waverhoek;35;18 maart 2025;95,4;Vrij algemeen;Ja;Steltloper, nachttrekker
+79.;Wulp;Berkheide (Katwijk);36;7 april 2025;95,4;Vrij algemeen;Ja;Steltloper, nachttrekker
+79.;Wulp;Waverhoek;48;8 maart 2025;95,4;Vrij algemeen;Ja;Steltloper, nachttrekker
+79.;Wulp;Dordtse Biesbosch;164;5 april 2025;95,4;Vrij algemeen;Ja;Steltloper, nachttrekker
+79.;Wulp;IJmuiden aan Zee;194;12 april 2025;95,4;Vrij algemeen;Ja;Steltloper, nachttrekker
+231.;Zanglijster;Berkheide (Katwijk);238;21 maart 2025;1589,0;Algemeen;Ja;Lijster, nachttrekker
+231.;Zanglijster;Parnassia, Kennemerduinen;312;7 april 2025;1589,0;Algemeen;Ja;Lijster, nachttrekker
+231.;Zanglijster;Parnassia, Kennemerduinen;565;8 april 2025;1589,0;Algemeen;Ja;Lijster, nachttrekker
+231.;Zanglijster;Berkheide (Katwijk);1.205;8 april 2025;1589,0;Algemeen;Ja;Lijster, nachttrekker
+231.;Zanglijster;Berkheide (Katwijk);5.625;7 april 2025;1589,0;Algemeen;Ja;Lijster, nachttrekker
+164.;Zeearend;Dordtse Biesbosch;3;14 februari 2025;3,6;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+164.;Zeearend;Dordtse Biesbosch;3;5 april 2025;3,6;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+164.;Zeearend;IJmeerdijk, Almere;4;7 april 2025;3,6;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+164.;Zeearend;Vijfhoek Diemen;3;23 maart 2025;3,6;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+164.;Zeearend;Vijfhoek Diemen;5;5 mei 2025;3,6;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+131.;Zeekoet;Egmond aan Zee;1;31 januari 2025;3,0;Zeer zeldzaam;Nee;Dagvlieger
+131.;Zeekoet;Paal 19, Texel;1;16 februari 2025;3,0;Zeer zeldzaam;Nee;Dagvlieger
+131.;Zeekoet;Paal 19, Texel;7;30 maart 2025;3,0;Zeer zeldzaam;Nee;Dagvlieger
+121.;Zilvermeeuw;Bloemendaal aan Zee;167;10 maart 2025;295,4;Algemeen;Nee;Dagvlieger
+121.;Zilvermeeuw;Bloemendaal aan Zee;179;30 maart 2025;295,4;Algemeen;Nee;Dagvlieger
+121.;Zilvermeeuw;Parnassia, Kennemerduinen;210;21 maart 2025;295,4;Algemeen;Nee;Dagvlieger
+121.;Zilvermeeuw;Paal 19, Texel;400;25 januari 2025;295,4;Algemeen;Nee;Dagvlieger
+121.;Zilvermeeuw;Berkheide (Katwijk);521;2 maart 2025;295,4;Algemeen;Nee;Dagvlieger
+71.;Zilverplevier;Parnassia, Kennemerduinen;150;11 mei 2025;289,0;Algemeen;Ja;Steltloper, nachttrekker
+71.;Zilverplevier;IJmuiden aan Zee;189;11 mei 2025;289,0;Algemeen;Ja;Steltloper, nachttrekker
+71.;Zilverplevier;Castricum aan Zee (zeetrek);219;11 mei 2025;289,0;Algemeen;Ja;Steltloper, nachttrekker
+71.;Zilverplevier;Castricum aan Zee (zeetrek);405;5 mei 2025;289,0;Algemeen;Ja;Steltloper, nachttrekker
+71.;Zilverplevier;Bloemendaal aan Zee;482;5 mei 2025;289,0;Algemeen;Ja;Steltloper, nachttrekker
+26.;Zomertaling;Bloemendaal aan Zee;6;9 maart 2025;7,4;Zeldzaam;Ja;Eend, nachttrekker
+26.;Zomertaling;Egmond aan Zee;7;1 mei 2025;7,4;Zeldzaam;Ja;Eend, nachttrekker
+26.;Zomertaling;Castricum aan Zee (zeetrek);8;21 maart 2025;7,4;Zeldzaam;Ja;Eend, nachttrekker
+26.;Zomertaling;Bloemendaal aan Zee;8;3 april 2025;7,4;Zeldzaam;Ja;Eend, nachttrekker
+26.;Zomertaling;Parnassia, Kennemerduinen;8;1 mei 2025;7,4;Zeldzaam;Ja;Eend, nachttrekker
+34.;Zomertaling/Wintertaling;Vijfhoek Diemen;1;7 maart 2025;1,0;Zeer zeldzaam;Ja;Eend, nachttrekker
+55.;Zomertortel;Berkheide (Katwijk);1;12 mei 2025;1,0;Zeer zeldzaam;Ja;Trekt 's nachts
+55.;Zomertortel;Maashorst - Hofmans Plassen;1;11 mei 2025;1,0;Zeer zeldzaam;Ja;Trekt 's nachts
+55.;Zomertortel;Maashorst - Hofmans Plassen;1;12 mei 2025;1,0;Zeer zeldzaam;Ja;Trekt 's nachts
+140.;Zwarte Ibis;Dordtse Biesbosch;1;12 mei 2025;1,0;Zeer zeldzaam;Nee;Dagvlieger
+191.;Zwarte Kraai;Dordtse Biesbosch;27;10 mei 2025;33,2;Vrij algemeen;Nee;Dagvlieger
+191.;Zwarte Kraai;Maashorst - Hofmans Plassen;30;20 maart 2025;33,2;Vrij algemeen;Nee;Dagvlieger
+191.;Zwarte Kraai;Dordtse Biesbosch;32;5 april 2025;33,2;Vrij algemeen;Nee;Dagvlieger
+191.;Zwarte Kraai;Berkheide (Katwijk);35;8 april 2025;33,2;Vrij algemeen;Nee;Dagvlieger
+191.;Zwarte Kraai;Berkheide (Katwijk);42;7 april 2025;33,2;Vrij algemeen;Nee;Dagvlieger
+136.;Zwarte Ooievaar;Heidestein (bij Zeist);1;12 april 2025;1,0;Zeer zeldzaam;Nee;Thermiekvlieger, dag
+136.;Zwarte Ooievaar;Maashorst - Hofmans Plassen;1;2 mei 2025;1,0;Zeer zeldzaam;Nee;Thermiekvlieger, dag
+244.;Zwarte Roodstaart;Berkheide (Katwijk);3;27 maart 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+244.;Zwarte Roodstaart;Bloemendaal aan Zee;1;22 maart 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+244.;Zwarte Roodstaart;Bloemendaal aan Zee;1;25 maart 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+244.;Zwarte Roodstaart;Bloemendaal aan Zee;1;1 april 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+244.;Zwarte Roodstaart;Heidestein (bij Zeist);1;2 april 2025;1,4;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+4.;Zwarte Rotgans;Egmond aan Zee;1;12 april 2025;1,0;Zeer zeldzaam;Nee;Dagvlieger
+90.;Zwarte Ruiter;Dordtse Biesbosch;4;11 april 2025;7,0;Zeldzaam;Ja;Steltloper, nachttrekker
+90.;Zwarte Ruiter;Castricum aan Zee (zeetrek);4;11 mei 2025;7,0;Zeldzaam;Ja;Steltloper, nachttrekker
+90.;Zwarte Ruiter;Berkheide (Katwijk);5;30 april 2025;7,0;Zeldzaam;Ja;Steltloper, nachttrekker
+90.;Zwarte Ruiter;Bloemendaal aan Zee;11;29 april 2025;7,0;Zeldzaam;Ja;Steltloper, nachttrekker
+90.;Zwarte Ruiter;Berkheide (Katwijk);11;9 mei 2025;7,0;Zeldzaam;Ja;Steltloper, nachttrekker
+176.;Zwarte Specht;Heidestein (bij Zeist);2;10 januari 2025;3,4;Zeer zeldzaam;Nee;Standvogel
+176.;Zwarte Specht;Heidestein (bij Zeist);3;9 februari 2025;3,4;Zeer zeldzaam;Nee;Standvogel
+176.;Zwarte Specht;Heidestein (bij Zeist);3;18 februari 2025;3,4;Zeer zeldzaam;Nee;Standvogel
+176.;Zwarte Specht;Heidestein (bij Zeist);4;12 februari 2025;3,4;Zeer zeldzaam;Nee;Standvogel
+176.;Zwarte Specht;Heidestein (bij Zeist);5;12 april 2025;3,4;Zeer zeldzaam;Nee;Standvogel
+108.;Zwarte Stern;Egmond aan Zee;63;13 mei 2025;75,8;Vrij algemeen;Ja;Trekt deels 's nachts
+108.;Zwarte Stern;Dordtse Biesbosch;65;21 april 2025;75,8;Vrij algemeen;Ja;Trekt deels 's nachts
+108.;Zwarte Stern;Parnassia, Kennemerduinen;68;30 april 2025;75,8;Vrij algemeen;Ja;Trekt deels 's nachts
+108.;Zwarte Stern;Dordtse Biesbosch;80;19 april 2025;75,8;Vrij algemeen;Ja;Trekt deels 's nachts
+108.;Zwarte Stern;Dordtse Biesbosch;103;22 april 2025;75,8;Vrij algemeen;Ja;Trekt deels 's nachts
+163.;Zwarte Wouw;Heidestein (bij Zeist);2;13 april 2025;2,4;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+163.;Zwarte Wouw;Maashorst - Hofmans Plassen;2;8 mei 2025;2,4;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+163.;Zwarte Wouw;Maashorst - Hofmans Plassen;2;11 mei 2025;2,4;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+163.;Zwarte Wouw;Maashorst - Hofmans Plassen;3;13 april 2025;2,4;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+163.;Zwarte Wouw;Maashorst - Hofmans Plassen;3;28 april 2025;2,4;Zeer zeldzaam;Nee;Roofvogel, dagvlieger
+42.;Zwarte Zee-eend;Egmond aan Zee;6.863;20 april 2025;10061,8;Algemeen;Nee;Dagvlieger
+42.;Zwarte Zee-eend;Egmond aan Zee;7.311;3 mei 2025;10061,8;Algemeen;Nee;Dagvlieger
+42.;Zwarte Zee-eend;Egmond aan Zee;8.535;16 mei 2025;10061,8;Algemeen;Nee;Dagvlieger
+42.;Zwarte Zee-eend;Egmond aan Zee;9.395;25 april 2025;10061,8;Algemeen;Nee;Dagvlieger
+42.;Zwarte Zee-eend;Egmond aan Zee;18.205;18 april 2025;10061,8;Algemeen;Nee;Dagvlieger
+221.;Zwartkop;Berkheide (Katwijk);1;8 april 2025;1,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+221.;Zwartkop;Berkheide (Katwijk);2;23 april 2025;1,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+221.;Zwartkop;Dordtse Biesbosch;1;3 april 2025;1,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+221.;Zwartkop;Heidestein (bij Zeist);1;12 april 2025;1,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+221.;Zwartkop;Maashorst - Hofmans Plassen;1;26 maart 2025;1,2;Zeer zeldzaam;Ja;Zangvogel, nachttrekker
+118.;Zwartkopmeeuw;Dordtse Biesbosch;22;25 april 2025;50,2;Vrij algemeen;Nee;Dagvlieger
+118.;Zwartkopmeeuw;Waverhoek;26;9 juni 2025;50,2;Vrij algemeen;Nee;Dagvlieger
+118.;Zwartkopmeeuw;IJmeerdijk, Almere;56;22 april 2025;50,2;Vrij algemeen;Nee;Dagvlieger
+118.;Zwartkopmeeuw;Dordtse Biesbosch;58;21 april 2025;50,2;Vrij algemeen;Nee;Dagvlieger
+118.;Zwartkopmeeuw;Dordtse Biesbosch;89;22 april 2025;50,2;Vrij algemeen;Nee;Dagvlieger
+`;
 
-// ─── Night species per month ───────────────────────────────────────────────────
-const NIGHT_SPECIES = {
-  mrt: [
-    { name: 'Houtsnip', emoji: '🐦', origin: 'West-Europa', chance: 'hoog', note: 'Volgt valleien en duinranden, stijgt bij zonsopgang op' },
-    { name: 'Kramsvogel', emoji: '🐦', origin: 'Scandinavië', chance: 'hoog', note: 'Vliegen in losse groepen, zachte chak-roep hoorbaar' },
-    { name: 'Koperwiek', emoji: '🐦', origin: 'Scandinavië / IJsland', chance: 'hoog', note: 'Terugtrek, herkenbaar dun siep-piep roepje' },
-    { name: 'Roodborst', emoji: '🐦', origin: 'West-Europa', chance: 'middel', note: 'Trekt overwegend \'s nachts, hoge siet-roep' },
-    { name: 'Watersnip', emoji: '🐦', origin: 'West-Afrika', chance: 'laag', note: 'Natte gebieden, scherp rend-rend-roep bij opvliegen' },
-  ],
-  apr: [
-    { name: 'Fitis', emoji: '🐦', origin: 'Sub-Sahara Afrika', chance: 'hoog', note: 'Hoofdnacht-trekker in april, luik-roep in het donker' },
-    { name: 'Nachtegaal', emoji: '🎵', origin: 'Tropisch Afrika', chance: 'hoog', note: 'Zingt bij aankomst direct — te horen vanuit je tuin!' },
-    { name: 'Roodborst', emoji: '🐦', origin: 'West-Europa', chance: 'middel', note: 'Hoge, dunne siet-roep, trekt verder naar N-Europa' },
-    { name: 'Paapje', emoji: '🐦', origin: 'West-Afrika (Sahel)', chance: 'middel', note: 'Open terrein, duinen en polders, kleine tring-roep' },
-    { name: 'Sprinkhaanzanger', emoji: '🐦', origin: 'West-Afrika', chance: 'laag', note: 'Moeilijk te zien, insectenachtig surrend geluid' },
-  ],
-  mei: [
-    { name: 'Spotvogel', emoji: '🐦', origin: 'Tropisch Afrika', chance: 'hoog', note: 'Mimickt andere soorten — je hoort ineens 5 soorten tegelijk' },
-    { name: 'Kleine Karekiet', emoji: '🐦', origin: 'West-Afrika', chance: 'hoog', note: 'Rietlanden, scherp tjak-tjak-tjak-roep \'s nachts' },
-    { name: 'Nachtegaal', emoji: '🎵', origin: 'Tropisch Afrika', chance: 'middel', note: 'Zingt ook overdag nu, maar nacht is spectaculairder' },
-    { name: 'Kwartelkoning', emoji: '🐦', origin: 'Tropisch Afrika', chance: 'laag', note: 'Crex-crex uit grasland — herkenbaar maar zeldzaam' },
-  ],
-};
+const DUTCH_MONTHS_MAP = {'januari':0,'februari':1,'maart':2,'april':3,'mei':4,'juni':5,'juli':6,'augustus':7,'september':8,'oktober':9,'november':10,'december':11};
+const SHORT_MONTH_NAMES = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+
+function parseDutchDate(str) {
+  const p = str.trim().split(' ');
+  if (p.length < 3) return null;
+  const m = DUTCH_MONTHS_MAP[p[1].toLowerCase()];
+  if (m === undefined) return null;
+  return new Date(parseInt(p[2]), m, parseInt(p[0]));
+}
+function getMondayOfWeek(date) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+function formatWeekRange(date) {
+  const mon = getMondayOfWeek(date);
+  const sun = new Date(mon);
+  sun.setDate(mon.getDate() + 6);
+  const m1 = SHORT_MONTH_NAMES[mon.getMonth()];
+  const m2 = SHORT_MONTH_NAMES[sun.getMonth()];
+  if (m1 === m2) return `${mon.getDate()}–${sun.getDate()} ${m1}`;
+  return `${mon.getDate()} ${m1} – ${sun.getDate()} ${m2}`;
+}
+function getISOWeekNum(date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
+  const week1 = new Date(d.getFullYear(), 0, 4);
+  return 1 + Math.round(((d - week1) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7);
+}
+function emojiFromNote(note) {
+  if (!note) return '🐦';
+  const n = note.toLowerCase();
+  if (n.includes('roofvogel') || n.includes('thermiekvlieger')) return '🦅';
+  if (n.includes('lijster')) return '🎵';
+  if (n.includes('eend') && !n.includes('reiger')) return '🦆';
+  if (n.includes('gans') || n.includes('zwaan')) return '🦢';
+  if (n.includes('meeuw') || n.includes('stern') || n.includes('jager')) return '🕊️';
+  if (n.includes('reiger') || n.includes('ooievaar') || n.includes('lepelaar') || n.includes('ibis')) return '🦩';
+  if (n.includes('op zee') || n.includes('stormvogel')) return '🌊';
+  return '🐦';
+}
+function rarityStyle(z) {
+  if (z === 'Algemeen')      return { bg: 'rgba(122,158,110,0.2)', color: '#a8d49a', short: 'Alg' };
+  if (z === 'Vrij algemeen') return { bg: 'rgba(100,150,200,0.2)', color: '#90c0e8', short: 'V.alg' };
+  if (z === 'Zeldzaam')      return { bg: 'rgba(232,168,76,0.2)',  color: '#e8a84c', short: 'Zel' };
+  return                            { bg: 'rgba(200,80,60,0.15)',  color: '#e88070', short: 'Z.zel' };
+}
+function buildSpeciesData() {
+  const lines = RAW_DATA.trim().split('\n').slice(1);
+  const map = {};
+  for (const line of lines) {
+    const p = line.split(';');
+    if (p.length < 9) continue;
+    const name = p[1].trim(); if (!name) continue;
+    const telpost    = p[2].trim();
+    const totaal     = parseInt(p[3].trim().replace(/\./g, '')) || 0;
+    const datum      = p[4].trim();
+    const gemiddeld  = parseFloat(p[5].trim().replace(',', '.')) || 0;
+    const zeldzaamheid = p[6].trim();
+    const nachttrekker = p[7].trim().toLowerCase() === 'ja';
+    const toelichting  = p[8].trim();
+    if (!map[name]) map[name] = { name, zeldzaamheid, nachttrekker, toelichting, gemiddeld, records: [] };
+    const date = parseDutchDate(datum);
+    if (date) map[name].records.push({ telpost, totaal, date });
+  }
+  const SPECIES = { mrt: [], apr: [], mei: [] };
+  const NIGHT_SPECIES = { mrt: [], apr: [], mei: [] };
+  for (const sp of Object.values(map)) {
+    if (!sp.records.length) continue;
+    sp.records.sort((a, b) => b.totaal - a.totaal);
+    const peak = sp.records[0];
+    const m = peak.date.getMonth();
+    const tab = m <= 2 ? 'mrt' : m === 3 ? 'apr' : 'mei';
+    const entry = {
+      name: sp.name, emoji: emojiFromNote(sp.toelichting),
+      zeldzaamheid: sp.zeldzaamheid, nachttrekker: sp.nachttrekker,
+      toelichting: sp.toelichting, gemiddeld: sp.gemiddeld,
+      peakDate: peak.date, peakWeekLabel: formatWeekRange(peak.date),
+      peakWeekNum: getISOWeekNum(peak.date), peakWeekMonday: getMondayOfWeek(peak.date),
+      bestTelpost: peak.telpost, maxCount: peak.totaal,
+    };
+    SPECIES[tab].push(entry);
+    if (sp.nachttrekker) {
+      const chance = sp.zeldzaamheid === 'Algemeen' || sp.zeldzaamheid === 'Vrij algemeen'
+        ? 'hoog' : sp.zeldzaamheid === 'Zeldzaam' ? 'middel' : 'laag';
+      NIGHT_SPECIES[tab].push({ name: sp.name, emoji: entry.emoji, chance, note: sp.toelichting, gemiddeld: sp.gemiddeld });
+    }
+  }
+  for (const tab of ['mrt', 'apr', 'mei']) {
+    SPECIES[tab].sort((a, b) => a.peakDate - b.peakDate);
+    NIGHT_SPECIES[tab] = NIGHT_SPECIES[tab].sort((a, b) => b.gemiddeld - a.gemiddeld).slice(0, 6);
+  }
+  return { SPECIES, NIGHT_SPECIES };
+}
+const { SPECIES, NIGHT_SPECIES } = buildSpeciesData();
 
 // ─── Wind helpers ─────────────────────────────────────────────────────────────
 function windDirText(deg) {
@@ -1763,25 +2934,34 @@ function renderSpecies() {
   const list = SPECIES[currentMonth] || [];
   const now = new Date();
   const hour = now.getHours() + now.getMinutes() / 60;
-  const night = isNight(hour);
+  const monthNames = { mrt: 'Maart', apr: 'April', mei: 'Mei' };
 
-  const html = `
-    <p class="section-title">🐦 ${currentMonth === 'mrt' ? 'Maart' : currentMonth === 'apr' ? 'April' : 'Mei'}-soorten</p>
-    <div class="species-list">
-      ${list.map(s => `
-        <div class="species-card ${s.status}">
+  const weekMap = {};
+  for (const s of list) {
+    const wk = s.peakWeekNum;
+    if (!weekMap[wk]) weekMap[wk] = { label: s.peakWeekLabel, monday: s.peakWeekMonday, species: [] };
+    weekMap[wk].species.push(s);
+  }
+  const sortedWeeks = Object.values(weekMap).sort((a, b) => a.monday - b.monday);
+
+  let html = `<p class="section-title">🐦 ${monthNames[currentMonth]} — ${list.length} soorten</p>`;
+  for (const week of sortedWeeks) {
+    html += `<div class="week-header">📅 ${week.label}</div><div class="species-list">`;
+    for (const s of week.species) {
+      const rar = rarityStyle(s.zeldzaamheid);
+      html += `
+        <div class="species-card">
           <div class="species-emoji">${s.emoji}</div>
           <div class="species-info">
-            <div class="species-name">${s.name}${s.night ? `<span class="night-badge">🌙 Nacht</span>` : ''}</div>
-            <div class="species-origin">📍 ${s.origin}</div>
-            <div class="species-timing">⏱ ${s.timing}</div>
+            <div class="species-name">${s.name}${s.nachttrekker ? '<span class="night-badge">🌙</span>' : ''}</div>
+            <div class="species-note">${s.toelichting}</div>
+            <div class="species-timing">📍 ${s.bestTelpost}</div>
           </div>
-          <div class="species-badge badge-${s.status}">
-            ${s.status === 'expected' ? 'Nu' : s.status === 'soon' ? 'Binnenkort' : 'Later'}
-          </div>
-        </div>`).join('')}
-    </div>`;
-
+          <div class="species-badge-rar" style="background:${rar.bg};color:${rar.color}">${rar.short}</div>
+        </div>`;
+    }
+    html += `</div>`;
+  }
   document.getElementById('speciesContent').innerHTML = html;
   updateNightBirdsSection(hour);
 }
