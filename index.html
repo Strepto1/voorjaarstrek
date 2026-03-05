@@ -2563,6 +2563,18 @@ function buildSpeciesData() {
 }
 const { SPECIES, NIGHT_SPECIES } = buildSpeciesData();
 
+// Soortdiversiteit per ISO-week (max = beste trekweek)
+const WEEK_DIVERSITY = (() => {
+  const map = {};
+  for (const tab of ['mrt', 'apr', 'mei']) {
+    for (const s of (SPECIES[tab] || [])) {
+      map[s.peakWeekNum] = (map[s.peakWeekNum] || 0) + 1;
+    }
+  }
+  return map;
+})();
+const WEEK_DIVERSITY_MAX = Math.max(1, ...Object.values(WEEK_DIVERSITY));
+
 // ─── Wind helpers ─────────────────────────────────────────────────────────────
 function windDirText(deg) {
   const dirs = ['N','NNO','NO','ONO','O','OZO','ZO','ZZO','Z','ZZW','ZW','WZW','W','WNW','NW','NNW'];
@@ -2585,66 +2597,107 @@ function calcTrekScore(w) {
   const now = new Date();
   const hour = now.getHours() + now.getMinutes() / 60;
   const night = isNight(hour);
+  let score = 0;
 
-  let score = 50;
-
-  // Wind direction: ZO (135°) ideal
+  // ── 1. WINDRICHTING (max 30 pt) ─────────────────────────────────────────────
+  // Voorjaarstrek: vogels vliegen N/NO richting; ZO-wind (135°) = perfecte rugwind.
+  // Z en O zijn ook gunstig; N/NW = tegenwind = migratie stopt vrijwel.
   const diff = Math.abs(((w.wind_direction_10m - 135 + 180 + 360) % 360) - 180);
-  if (diff < 45) score += 25;
-  else if (diff < 90) score += 10;
-  else if (diff > 135) score -= 15;
+  if      (diff <  30) score += 30;   // ZO ±30° = perfecte rugwind
+  else if (diff <  55) score += 22;   // O of ZZO = goed
+  else if (diff <  80) score += 12;   // Z of ONO = acceptabel
+  else if (diff < 110) score +=  4;   // ZW of NO = matig
+  else if (diff < 140) score -=  5;   // W of NNO = tegenwind
+  else                 score -= 12;   // NW of N  = trek stopt grotendeels
 
-  // Wind speed
+  // ── 2. WINDKRACHT (max 20 pt) ───────────────────────────────────────────────
+  // Nacht: Bf 1-2 ideaal (rustige lucht), Bf 4+ belemmert sterk.
+  // Dag: Bf 2-3 ideaal voor thermiek en stuwing; Bf 0 = geen lift; Bf 5+ = stop.
   const bf = beaufort(w.wind_speed_10m);
   if (night) {
-    // At night: lighter winds are better (BF 0-2)
-    if (bf <= 2) score += 15;
-    else if (bf === 3) score += 5;
-    else if (bf >= 5) score -= 20;
+    if      (bf === 1) score += 18;
+    else if (bf === 2) score += 20;
+    else if (bf === 3) score += 10;
+    else if (bf === 0) score +=  5;
+    else if (bf === 4) score -=  5;
+    else if (bf === 5) score -= 15;
+    else               score -= 25;   // Bf 6+ = vrijwel geen nachttrek
   } else {
-    if (bf >= 1 && bf <= 3) score += 15;
-    else if (bf === 0) score -= 5;
-    else if (bf >= 5) score -= 20;
+    if      (bf === 2) score += 20;
+    else if (bf === 3) score += 18;
+    else if (bf === 1) score += 12;
+    else if (bf === 4) score +=  6;
+    else if (bf === 0) score +=  2;   // windstil: zangvogels ok, roofvogels minder
+    else if (bf === 5) score -= 12;
+    else               score -= 22;   // Bf 6+ = roofvogels grounded
   }
 
-  // Temperature
-  if (w.temperature_2m > 15) score += 10;
-  else if (w.temperature_2m > 12) score += 5;
-  else if (w.temperature_2m > night ? 8 : 6) score += 2;
-  else score -= 10;
+  // ── 3. TEMPERATUUR (max 15 pt) ──────────────────────────────────────────────
+  // Drempelwaarde ~10°C voor meeste soorten; >15°C triggeert breedte van trek.
+  // Nacht iets lager drempel (vogels gaan bij 8°C al).
+  const tempThreshold = night ? 8 : 10;
+  const t = w.temperature_2m;
+  if      (t >= 16) score += 15;
+  else if (t >= 13) score += 11;
+  else if (t >= 10) score +=  7;
+  else if (t >= tempThreshold) score += 3;
+  else if (t >=  5) score -=  5;
+  else              score -= 15;   // <5°C = trek is vrijwel stil
 
-  // Rain
-  if (w.precipitation > 0.5) score -= 20;
-  else if (w.precipitation > 0) score -= 8;
+  // ── 4. NEERSLAG (harde straf) ───────────────────────────────────────────────
+  // Regen stopt trek direct; ook drizzle vermindert al sterk.
+  if      (w.precipitation >= 2.0) score -= 50;  // flinke regen = geen trek
+  else if (w.precipitation >= 0.5) score -= 30;
+  else if (w.precipitation >= 0.1) score -= 14;
+  else if (w.precipitation >  0)   score -=  5;
 
+  // ── 5. BEWOLKING (max 10 pt) ────────────────────────────────────────────────
+  // Dag: deels bewolkt (cumulus) = beste thermiek voor roofvogels;
+  //      volledig bewolkt = geen lift; volledig helder = harde zon, raptors hoog.
+  // Nacht: heldere hemel = sterrennavigatie voor nacht-trekkers.
   if (!night) {
-    // Cloud cover matters for daytime thermals
-    if (w.cloud_cover < 50) score += 5;
+    if      (w.cloud_cover < 25)  score +=  7;   // zonnig: goed voor thermiek
+    else if (w.cloud_cover < 55)  score += 10;   // deels bewolkt: optimaal (cumulus)
+    else if (w.cloud_cover < 75)  score +=  4;   // bewolkt maar acceptabel
+    else if (w.cloud_cover < 90)  score +=  0;
+    else                          score -=  6;   // grijze deken: geen thermiek
   } else {
-    // Moon phase bonus for night
+    if      (w.cloud_cover < 20)  score +=  8;   // heldere nacht: sterren zichtbaar
+    else if (w.cloud_cover < 50)  score +=  4;
+    else if (w.cloud_cover < 80)  score +=  0;
+    else                          score -=  3;   // dichte bewolking = oriëntatie moeilijker
+
+    // Maanfase bonus bij nacht
     const phase = getMoonPhase(new Date());
     const fullMoonDist = Math.abs(phase - 14.77);
-    if (fullMoonDist < 2) score += 10; // near full moon
-    // Clear sky at night helps with star navigation
-    if (w.cloud_cover < 30) score += 5;
+    if      (fullMoonDist < 1.5) score += 5;   // volle maan
+    else if (fullMoonDist < 4)   score += 2;
   }
+
+  // ── 6. SOORTDIVERSITEIT (max 15 pt) ─────────────────────────────────────────
+  // Weken met veel soorten in piek = betere trekperiode kalendergewijs.
+  // Geeft context: zelfs bij goed weer is vroeg maart minder interessant dan april.
+  const weekNum = getISOWeekNum(new Date());
+  const diversityCount = WEEK_DIVERSITY[weekNum] || 0;
+  const diversityBonus = Math.round((diversityCount / WEEK_DIVERSITY_MAX) * 15);
+  score += diversityBonus;
 
   return Math.max(0, Math.min(100, Math.round(score)));
 }
 
 function scoreLabelTrek(score, night) {
   if (night) {
-    if (score >= 80) return { text: 'Uitstekend — piek nachttrek boven je', color: '#9060d0' };
-    if (score >= 65) return { text: 'Goed — veel nacht-trekkers onderweg', color: '#a880e0' };
-    if (score >= 50) return { text: 'Redelijk — trek is gaande', color: '#c4a060' };
-    if (score >= 35) return { text: 'Matig — beperkte nachttrek', color: '#c8a060' };
-    return { text: 'Slecht — vogels wachten op beter weer', color: '#c8503c' };
+    if (score >= 72) return { text: 'Uitstekend — piek nachttrek boven je',      color: '#9060d0' };
+    if (score >= 55) return { text: 'Goed — actieve nachttrek verwacht',           color: '#a880e0' };
+    if (score >= 38) return { text: 'Redelijk — trek is beperkt gaande',           color: '#c4a060' };
+    if (score >= 20) return { text: 'Matig — weinig nachttrekkers actief',         color: '#c8a060' };
+    return                  { text: 'Slecht — vogels blijven aan de grond',        color: '#c8503c' };
   }
-  if (score >= 80) return { text: 'Uitstekend! Meteen naar buiten', color: '#7a9e6e' };
-  if (score >= 65) return { text: 'Goed — mooie trekvogels verwacht', color: '#a8d49a' };
-  if (score >= 50) return { text: 'Redelijk — kijken loont', color: '#e8a84c' };
-  if (score >= 35) return { text: 'Matig — kleine kans op trek', color: '#c8a060' };
-  return { text: 'Slecht — vogels wachten op beter', color: '#c8503c' };
+  if (score >= 72) return   { text: 'Uitstekend — ideale trekdag, ga erop uit!',  color: '#7a9e6e' };
+  if (score >= 55) return   { text: 'Goed — actieve trek verwacht',                color: '#a8d49a' };
+  if (score >= 38) return   { text: 'Redelijk — kijken loont bij goed moment',    color: '#e8a84c' };
+  if (score >= 20) return   { text: 'Matig — beperkte trek, misschien wat',       color: '#c8a060' };
+  return                    { text: 'Slecht — vogels wachten op beter weer',      color: '#c8503c' };
 }
 
 // ─── Photo score ──────────────────────────────────────────────────────────────
@@ -2905,10 +2958,19 @@ function renderWeather(w) {
   const label = scoreLabelTrek(score, night);
   const bf = beaufort(w.wind_speed_10m);
   const wDir = windDirText(w.wind_direction_10m);
-  const windGood = bf >= 1 && bf <= 4 && (w.wind_direction_10m > 90 && w.wind_direction_10m < 200);
-  const tempGood = w.temperature_2m > (night ? 8 : 12);
-  const rainGood = w.precipitation < 0.3;
-  const cloudGood = w.cloud_cover < 60;
+  const dirDiff = Math.abs(((w.wind_direction_10m - 135 + 180 + 360) % 360) - 180);
+  const windGood = bf >= 1 && bf <= 4 && dirDiff < 80;
+  const tempGood = w.temperature_2m > (night ? 8 : 10);
+  const rainGood = w.precipitation < 0.1;
+  const cloudGood = w.cloud_cover < 70;
+
+  const weekNum = getISOWeekNum(now);
+  const diversityCount = WEEK_DIVERSITY[weekNum] || 0;
+  const diversityPct = Math.round((diversityCount / WEEK_DIVERSITY_MAX) * 100);
+  const diversityLabel = diversityPct >= 80 ? 'Topweek voor diversiteit 🌟'
+    : diversityPct >= 55 ? 'Goede trekweek'
+    : diversityPct >= 30 ? 'Matige trekweek'
+    : 'Rustige trekperiode';
 
   const scoreName = night ? '🌙 Nachttrek Score' : '✦ Trek Score nu';
 
@@ -2917,6 +2979,7 @@ function renderWeather(w) {
       <div class="score-label ${night ? 'night-label' : ''}">${scoreName}</div>
       <div class="score-value ${night ? 'night-value' : ''}">${score}</div>
       <div class="score-description" style="color: ${label.color}">${label.text}</div>
+      <div style="font-size:0.7rem;opacity:0.5;margin-top:0.3rem">${diversityLabel} · ${diversityCount} soorten in piek</div>
       <div class="score-bar">
         <div class="score-fill ${night ? 'night-fill' : ''}" style="width: ${score}%"></div>
       </div>
@@ -2994,17 +3057,25 @@ function renderMoonRow() {
 function getTrekAdvice(w, score, night) {
   const wDir = windDirText(w.wind_direction_10m);
   const bf = beaufort(w.wind_speed_10m);
+  const diff = Math.abs(((w.wind_direction_10m - 135 + 180 + 360) % 360) - 180);
+  const goodDir = diff < 80;
+
   if (night) {
-    if (score >= 70) return `${wDir}-wind, rustige omstandigheden — ideale nachttrek. Ga naar open veld of kustlijn en luister naar overvliegende vogels.`;
-    if (w.precipitation > 0.3) return `Regen houdt nachttrekkers aan de grond. Vlak ná de regen kan explosieve trek plaatsvinden — zet een alarm!`;
-    return `Matige nachttrek. Zet je raam open en luister naar de roepen van doortrekkende vogels.`;
+    if (w.precipitation >= 0.5) return `Regen houdt nachttrekkers aan de grond. Vlak ná de regen kan explosieve trek plaatsvinden — zet een alarm voor zonsopgang!`;
+    if (score >= 72 && goodDir)  return `${wDir}-wind, rustige nacht — ideale nachttrek. Ga naar open veld of kustlijn en luister naar roepende vogels.`;
+    if (score >= 55 && goodDir)  return `${wDir}-wind en redelijk weer. Actieve nachttrek mogelijk — zeker bij helderder wordende hemel.`;
+    if (score >= 38)             return `Matige nachttrek. Zet je raam open en luister naar doortrekkende zangvogels.`;
+    if (bf >= 5)                 return `Wind te sterk (Bf ${bf}) voor nachttrek. Vogels blijven aan de grond.`;
+    return `Beperkte nachttrek verwacht. Omstandigheden niet gunstig genoeg voor massale beweging.`;
   }
-  if (score >= 75 && w.wind_direction_10m > 45 && w.wind_direction_10m < 200) {
-    return `${wDir}-wind duwt trekvogels richting de kust. Ideaal moment voor de duinen. Vroeg in de ochtend de beste kansen!`;
-  }
-  if (score >= 50) return `Redelijke omstandigheden. Zangvogels trekken vroeg in de ochtend. Roofvogels op thermiek zodra de zon kracht krijgt.`;
-  if (w.precipitation > 0.5) return `Regen stopt de trek. Maar vlak ná de regen kan explosieve trek plaatsvinden — houd het in de gaten!`;
-  return `Matige omstandigheden vandaag. Trek is beperkt. Morgen wellicht beter?`;
+
+  if (w.precipitation >= 0.5) return `Regen stopt de trek. Vlak ná de regen kan explosieve trek plaatsvinden — houd het in de gaten na de bui!`;
+  if (score >= 72 && goodDir)  return `${wDir}-wind duwt vogels richting de kust — ideale dag voor stuwing. Vroeg in de ochtend voor zangvogels, late ochtend voor roofvogels op thermiek.`;
+  if (score >= 55 && goodDir)  return `${wDir}-wind, actieve trek verwacht. Zangvogels trekken vroeg; roofvogels pas als de thermiek opkomt (mid-ochtend).`;
+  if (score >= 55)             return `Redelijk weer maar windrichting niet optimaal. Toch de moeite waard — trek gaat vrijwel altijd door bij droog weer.`;
+  if (bf >= 5)                 return `Wind te sterk (Bf ${bf}) voor comfortabele trek. Kleine zangvogels grounded; grote soorten vliegen wel.`;
+  if (score >= 38)             return `Matige dag. Kijken loont als je in het veld bent, maar massatrek verwacht je niet.`;
+  return `Omstandigheden ongunstig. Trek is sterk beperkt vandaag.`;
 }
 
 // ─── Night birds section ──────────────────────────────────────────────────────
